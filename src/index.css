@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --sidebar: #3d1a1a;
+  --bg: #f5f0eb;
+  --card: #ffffff;
+  --primary: #3d1a1a;
+  --danger: #cc0000;
+  --success: #22c55e;
+  --text: #1a1a1a;
+  --text-muted: #6b6b6b;
+  --border: #e5e0da;
+}
+
+.dark {
+  --bg: #1a1512;
+  --card: #241d19;
+  --text: #f5f0eb;
+  --text-muted: #a89b8c;
+  --border: #3d332c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
