@@ -162,4 +162,85 @@ export function Cadastro() {
                 className={`w-full rounded-lg border px-3 py-2.5 text-sm outline-none focus:border-[#3D1A1A] ${erroEmail ? 'border-red-500' : 'border-[#E5E0DA]'}`}
                 placeholder="voce@exemplo.com"
               />
-              {erroEmail && <p
+              {erroEmail && <p className="mt-1 text-xs text-red-600">{erroEmail}</p>}
+            </div>
+
+            <div>
+              <label htmlFor="senha" className="mb-1 block text-sm font-medium text-[#1A1A1A]">
+                Senha
+              </label>
+              <div className="relative">
+                <input
+                  id="senha"
+                  type={mostrarSenha ? 'text' : 'password'}
+                  required
+                  autoComplete="new-password"
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
+                  className={`w-full rounded-lg border px-3 py-2.5 text-sm outline-none focus:border-[#3D1A1A] ${erroSenha ? 'border-red-500' : 'border-[#E5E0DA]'}`}
+                  placeholder="Mínimo 8 caracteres"
+                />
+                <button
+                  type="button"
+                  onClick={() => setMostrarSenha(!mostrarSenha)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#6B6B6B]"
+                >
+                  {mostrarSenha ? 'Ocultar' : 'Mostrar'}
+                </button>
+              </div>
+              {senha && (
+                <ul className="mt-2 space-y-1">
+                  {[
+                    { ok: senha.length >= 8, texto: 'Mínimo 8 caracteres' },
+                    { ok: /[A-Z]/.test(senha), texto: 'Uma letra maiúscula' },
+                    { ok: /[a-z]/.test(senha), texto: 'Uma letra minúscula' },
+                    { ok: /[0-9]/.test(senha), texto: 'Um número' },
+                  ].map((req) => (
+                    <li key={req.texto} className={`text-xs ${req.ok ? 'text-green-600' : 'text-red-500'}`}>
+                      {req.ok ? '✓' : '✗'} {req.texto}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {erroSenha && <p className="mt-1 text-xs text-red-600">{erroSenha}</p>}
+            </div>
+
+            <div>
+              <label htmlFor="confirmarSenha" className="mb-1 block text-sm font-medium text-[#1A1A1A]">
+                Confirmar senha
+              </label>
+              <div className="relative">
+                <input
+                  id="confirmarSenha"
+                  type={mostrarSenha ? 'text' : 'password'}
+                  required
+                  autoComplete="new-password"
+                  value={confirmarSenha}
+                  onChange={(e) => setConfirmarSenha(e.target.value)}
+                  className={`w-full rounded-lg border px-3 py-2.5 text-sm outline-none focus:border-[#3D1A1A] ${erroConfirmar ? 'border-red-500' : 'border-[#E5E0DA]'}`}
+                  placeholder="Repita a senha"
+                />
+              </div>
+              {erroConfirmar && <p className="mt-1 text-xs text-red-600">{erroConfirmar}</p>}
+            </div>
+
+            <button
+              type="submit"
+              disabled={carregando}
+              className="w-full rounded-lg bg-[#3D1A1A] py-2.5 text-sm font-medium text-white transition-opacity disabled:opacity-60"
+            >
+              {carregando ? 'Criando conta...' : 'Criar conta'}
+            </button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-[#6B6B6B]">
+            Já tem conta?{' '}
+            <Link to="/login" className="font-medium text-[#3D1A1A] hover:underline">
+              Entrar
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
