@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import toast from 'react-hot-toast';
 import { ForkIcon } from '../../components/ForkIcon';
 import { api } from '../../lib/api';
 
@@ -68,13 +67,9 @@ export function Cadastro() {
           if (e.campo === 'nome') setErroNome(e.mensagem);
         });
       } else if (data?.message) {
-        if (data.message.toLowerCase().includes('email')) {
-          setErroEmail(data.message);
-        } else {
-          toast.error(data.message);
-        }
+        setErroEmail(data.message);
       } else {
-        toast.error('Não foi possível criar a conta. Tente novamente.');
+        setErroEmail('Não foi possível criar a conta. Verifique o e-mail e tente novamente.');
       }
     } finally {
       setCarregando(false);
@@ -92,19 +87,38 @@ export function Cadastro() {
           </p>
         </div>
         <div className="flex items-center justify-center bg-[#F5F0EB] p-6">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-xl text-center">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-xl">
             <ForkIcon className="h-8 w-8 text-[#3D1A1A] mx-auto mb-4" />
-            <h1 className="text-xl font-semibold text-[#1A1A1A]">
-              Verifique seu e-mail para ativar sua conta
+            <h1 className="text-center text-xl font-semibold text-[#1A1A1A]">
+              Confirme seu e-mail
             </h1>
-            <p className="mt-2 text-sm text-[#6B6B6B]">
-              Enviamos um link de confirmação para <strong>{email}</strong>. Abra o e-mail e confirme para poder entrar.
+            <p className="mt-4 text-sm text-[#6B6B6B] text-center">
+              Enviamos um link de ativação para:
             </p>
+            <p className="mt-1 text-center font-semibold text-[#1A1A1A] break-all">
+              {email}
+            </p>
+            <p className="mt-4 text-sm text-[#6B6B6B] text-center">
+              Abra seu e-mail e clique no link para ativar sua conta.
+            </p>
+            <div className="mt-6 rounded-lg bg-[#F5F0EB] p-4">
+              <p className="text-sm text-[#6B6B6B]">
+                <strong className="text-[#1A1A1A]">Digitou o e-mail errado?</strong>
+                <br />
+                Sem problemas — volte e tente novamente com o e-mail correto.
+              </p>
+              <button
+                onClick={() => setSucesso(false)}
+                className="mt-3 w-full rounded-lg border border-[#3D1A1A] py-2 text-sm font-medium text-[#3D1A1A] hover:bg-[#3D1A1A] hover:text-white transition-colors"
+              >
+                Corrigir e-mail
+              </button>
+            </div>
             <Link
               to="/login"
-              className="mt-6 inline-block rounded-lg bg-[#3D1A1A] px-4 py-2.5 text-sm font-medium text-white"
+              className="mt-4 block text-center text-sm text-[#6B6B6B] hover:underline"
             >
-              Ir para o login
+              Já confirmei meu e-mail → Entrar
             </Link>
           </div>
         </div>
@@ -142,7 +156,7 @@ export function Cadastro() {
                 autoComplete="name"
                 value={nome}
                 onChange={(e) => setNome(e.target.value)}
-                className={`w-full rounded-lg border px-3 py-2.5 text-sm outline-none focus:border-[#3D1A1A] ${erroNome ? 'border-red-500' : 'border-[#E5E0DA]'}`}
+                className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm outline-none focus:border-[#3D1A1A] ${erroNome ? 'border-red-500' : 'border-[#E5E0DA]'}`}
                 placeholder="Seu nome ou nome da confeitaria"
               />
               {erroNome && <p className="mt-1 text-xs text-red-600">{erroNome}</p>}
@@ -159,7 +173,7 @@ export function Cadastro() {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={`w-full rounded-lg border px-3 py-2.5 text-sm outline-none focus:border-[#3D1A1A] ${erroEmail ? 'border-red-500' : 'border-[#E5E0DA]'}`}
+                className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm outline-none focus:border-[#3D1A1A] ${erroEmail ? 'border-red-500' : 'border-[#E5E0DA]'}`}
                 placeholder="voce@exemplo.com"
               />
               {erroEmail && <p className="mt-1 text-xs text-red-600">{erroEmail}</p>}
@@ -177,7 +191,7 @@ export function Cadastro() {
                   autoComplete="new-password"
                   value={senha}
                   onChange={(e) => setSenha(e.target.value)}
-                  className={`w-full rounded-lg border px-3 py-2.5 text-sm outline-none focus:border-[#3D1A1A] ${erroSenha ? 'border-red-500' : 'border-[#E5E0DA]'}`}
+                  className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm outline-none focus:border-[#3D1A1A] ${erroSenha ? 'border-red-500' : 'border-[#E5E0DA]'}`}
                   placeholder="Mínimo 8 caracteres"
                 />
                 <button
@@ -209,18 +223,16 @@ export function Cadastro() {
               <label htmlFor="confirmarSenha" className="mb-1 block text-sm font-medium text-[#1A1A1A]">
                 Confirmar senha
               </label>
-              <div className="relative">
-                <input
-                  id="confirmarSenha"
-                  type={mostrarSenha ? 'text' : 'password'}
-                  required
-                  autoComplete="new-password"
-                  value={confirmarSenha}
-                  onChange={(e) => setConfirmarSenha(e.target.value)}
-                  className={`w-full rounded-lg border px-3 py-2.5 text-sm outline-none focus:border-[#3D1A1A] ${erroConfirmar ? 'border-red-500' : 'border-[#E5E0DA]'}`}
-                  placeholder="Repita a senha"
-                />
-              </div>
+              <input
+                id="confirmarSenha"
+                type={mostrarSenha ? 'text' : 'password'}
+                required
+                autoComplete="new-password"
+                value={confirmarSenha}
+                onChange={(e) => setConfirmarSenha(e.target.value)}
+                className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm outline-none focus:border-[#3D1A1A] ${erroConfirmar ? 'border-red-500' : 'border-[#E5E0DA]'}`}
+                placeholder="Repita a senha"
+              />
               {erroConfirmar && <p className="mt-1 text-xs text-red-600">{erroConfirmar}</p>}
             </div>
 

@@ -1,7 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
-import toast from 'react-hot-toast';
 import { ForkIcon } from '../../components/ForkIcon';
 import { useAuth } from '../../context/AuthContext';
 
@@ -10,17 +9,24 @@ export function Login() {
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [carregando, setCarregando] = useState(false);
+  const [erroLogin, setErroLogin] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setCarregando(true);
+    setErroLogin('');
     try {
       await login(email, senha);
       navigate('/dashboard');
-    } catch {
-      toast.error('Email ou senha inválidos.');
+    } catch (error: any) {
+      const mensagem = error?.response?.data?.message ?? '';
+      if (mensagem.toLowerCase().includes('verificado')) {
+        setErroLogin('Seu e-mail ainda não foi verificado. Verifique sua caixa de entrada e clique no link que enviamos.');
+      } else {
+        setErroLogin('E-mail ou senha inválidos.');
+      }
     } finally {
       setCarregando(false);
     }
@@ -45,7 +51,7 @@ export function Login() {
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div>
               <label htmlFor="email" className="mb-1 block text-sm font-medium text-[#1A1A1A]">
-                Email
+                E-mail
               </label>
               <input
                 id="email"
@@ -53,8 +59,8 @@ export function Login() {
                 required
                 autoComplete="email"
                 value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                className="w-full rounded-lg border border-[#E5E0DA] px-3 py-2.5 text-sm outline-none focus:border-[#3D1A1A]"
+                onChange={(event) => { setEmail(event.target.value); setErroLogin(''); }}
+                className="w-full rounded-lg border border-[#E5E0DA] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#3D1A1A]"
                 placeholder="voce@exemplo.com"
               />
             </div>
@@ -70,8 +76,8 @@ export function Login() {
                   required
                   autoComplete="current-password"
                   value={senha}
-                  onChange={(event) => setSenha(event.target.value)}
-                  className="w-full rounded-lg border border-[#E5E0DA] px-3 py-2.5 pr-10 text-sm outline-none focus:border-[#3D1A1A]"
+                  onChange={(event) => { setSenha(event.target.value); setErroLogin(''); }}
+                  className="w-full rounded-lg border border-[#E5E0DA] bg-white px-3 py-2.5 pr-10 text-sm outline-none focus:border-[#3D1A1A]"
                   placeholder="••••••••"
                 />
                 <button
@@ -89,14 +95,9 @@ export function Login() {
               </div>
             </div>
 
-            <div className="text-right">
-              <Link
-                to="/esqueci-senha"
-                className="text-sm font-medium text-[#3D1A1A] hover:underline"
-              >
-                Esqueci minha senha
-              </Link>
-            </div>
+            {erroLogin && (
+              <p className="text-center text-sm text-red-600">{erroLogin}</p>
+            )}
 
             <button
               type="submit"
