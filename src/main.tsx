@@ -6,14 +6,17 @@ import './index.css'
 import App from './App.tsx'
 import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
+import { AlertasProvider } from './context/AlertasContext'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
-          <Toaster position="top-right" />
-          <App />
+          <AlertasProvider>
+            <Toaster position="top-right" />
+            <App />
+          </AlertasProvider>
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>

@@ -9,13 +9,10 @@ import {
   UsersIcon,
   EllipsisVerticalIcon,
   UserCircleIcon,
-  SunIcon,
-  MoonIcon,
   ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/outline';
 import { ForkIcon } from '../components/ForkIcon';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 
 const MENU = [
   { label: 'Dashboard', path: '/dashboard', icon: HomeIcon },
@@ -37,7 +34,6 @@ function iniciais(nome?: string) {
 export function Sidebar() {
   const [menuAberto, setMenuAberto] = useState(false);
   const { usuario, logout } = useAuth();
-  const { tema, toggleTema } = useTheme();
   const navigate = useNavigate();
 
   return (
@@ -83,24 +79,9 @@ export function Sidebar() {
               className="flex w-full items-center gap-2 px-4 py-2.5 text-left hover:bg-black/5"
             >
               <UserCircleIcon className="h-4 w-4" />
-              Editar perfil
+              Acessar perfil
             </button>
-            <button
-              type="button"
-              onClick={() => {
-                toggleTema();
-                setMenuAberto(false);
-              }}
-              className="flex w-full items-center gap-2 px-4 py-2.5 text-left hover:bg-black/5"
-            >
-              {tema === 'claro' ? (
-                <MoonIcon className="h-4 w-4" />
-              ) : (
-                <SunIcon className="h-4 w-4" />
-              )}
-              Tema {tema === 'claro' ? 'escuro' : 'claro'}
-            </button>
-            <button
+<button
               type="button"
               onClick={() => {
                 setMenuAberto(false);

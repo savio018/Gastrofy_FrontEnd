@@ -14,9 +14,10 @@ interface AlertasPanelProps {
   carregando: boolean;
   alertas: Alerta[];
   onFechar: () => void;
+  onSelecionarAlerta: (alerta: Alerta) => void;
 }
 
-export function AlertasPanel({ aberto, carregando, alertas, onFechar }: AlertasPanelProps) {
+export function AlertasPanel({ aberto, carregando, alertas, onFechar, onSelecionarAlerta }: AlertasPanelProps) {
   if (!aberto) return null;
 
   return (
@@ -25,7 +26,7 @@ export function AlertasPanel({ aberto, carregando, alertas, onFechar }: AlertasP
         type="button"
         aria-label="Fechar alertas"
         onClick={onFechar}
-        className="absolute inset-0 bg-black/30"
+        className="absolute inset-0 backdrop-blur-sm bg-black/20"
       />
       <aside className="relative flex h-full w-full max-w-sm flex-col bg-[var(--card)] text-[var(--text)] shadow-xl">
         <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
@@ -50,32 +51,37 @@ export function AlertasPanel({ aberto, carregando, alertas, onFechar }: AlertasP
             </p>
           )}
 
-          <ul className="space-y-3">
-            {alertas.map((alerta, index) => {
-              const badge = BADGE[alerta.tipo] ?? {
-                label: alerta.tipo,
-                className: 'bg-black/5 text-[var(--text-muted)]',
-              };
-              return (
-                <li
-                  key={`${alerta.tipo}-${alerta.insumo}-${index}`}
-                  className="rounded-lg border border-[var(--border)] p-3"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-medium">{alerta.insumo}</span>
-                    <span
-                      className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${badge.className}`}
+          {!carregando && alertas.length > 0 && (
+            <ul className="space-y-3">
+              {alertas.map((alerta, index) => {
+                const badge = BADGE[alerta.tipo] ?? {
+                  label: alerta.tipo,
+                  className: 'bg-black/5 text-[var(--text-muted)]',
+                };
+                return (
+                  <li key={`${alerta.categoria}-${alerta.itemId}-${alerta.loteId ?? 'estoque'}-${alerta.tipo}-${index}`}>
+                    <button
+                      type="button"
+                      onClick={() => onSelecionarAlerta(alerta)}
+                      className="w-full rounded-lg border border-[var(--border)] p-3 text-left transition-colors hover:bg-black/5"
                     >
-                      {badge.label}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-sm text-[var(--text-muted)]">
-                    {alerta.mensagem}
-                  </p>
-                </li>
-              );
-            })}
-          </ul>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-sm font-medium">{alerta.insumo}</span>
+                        <span
+                          className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${badge.className}`}
+                        >
+                          {badge.label}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-sm text-[var(--text-muted)]">
+                        {alerta.mensagem}
+                      </p>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
       </aside>
     </div>

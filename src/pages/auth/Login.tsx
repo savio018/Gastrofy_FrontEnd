@@ -1,8 +1,9 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { ForkIcon } from '../../components/ForkIcon';
 import { useAuth } from '../../context/AuthContext';
+import { reenviarVerificacao } from '../../api/auth';
 
 export function Login() {
   const [email, setEmail] = useState('');
@@ -10,13 +11,26 @@ export function Login() {
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [erroLogin, setErroLogin] = useState('');
+  const [emailNaoVerificado, setEmailNaoVerificado] = useState(false);
+  const [carregandoReenvio, setCarregandoReenvio] = useState(false);
+  const [tempoEsperaReenvio, setTempoEsperaReenvio] = useState(0);
+  const [mensagemReenvio, setMensagemReenvio] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (tempoEsperaReenvio > 0) {
+      const timer = setTimeout(() => setTempoEsperaReenvio(tempoEsperaReenvio - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [tempoEsperaReenvio]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setCarregando(true);
     setErroLogin('');
+    setEmailNaoVerificado(false);
+    setMensagemReenvio('');
     try {
       await login(email, senha);
       navigate('/dashboard');
@@ -24,11 +38,30 @@ export function Login() {
       const mensagem = error?.response?.data?.message ?? '';
       if (mensagem.toLowerCase().includes('verificado')) {
         setErroLogin('Seu e-mail ainda não foi verificado. Verifique sua caixa de entrada e clique no link que enviamos.');
+        setEmailNaoVerificado(true);
+        setTempoEsperaReenvio(0);
       } else {
         setErroLogin('E-mail ou senha inválidos.');
+        setEmailNaoVerificado(false);
       }
     } finally {
       setCarregando(false);
+    }
+  };
+
+  const handleReenviarVerificacao = async () => {
+    if (!email) return;
+
+    setCarregandoReenvio(true);
+    try {
+      await reenviarVerificacao(email);
+      setMensagemReenvio('Email reenviado! Verifique sua caixa de entrada (e spam).');
+      setTempoEsperaReenvio(30);
+    } catch {
+      setMensagemReenvio('Email reenviado! Verifique sua caixa de entrada (e spam).');
+      setTempoEsperaReenvio(30);
+    } finally {
+      setCarregandoReenvio(false);
     }
   };
 
@@ -96,7 +129,24 @@ export function Login() {
             </div>
 
             {erroLogin && (
-              <p className="text-center text-sm text-red-600">{erroLogin}</p>
+              <div className="space-y-3">
+                <p className="text-center text-sm text-red-600">{erroLogin}</p>
+                {emailNaoVerificado && (
+                  <div className="space-y-2">
+                    {mensagemReenvio && (
+                      <p className="text-center text-sm text-green-600">{mensagemReenvio}</p>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleReenviarVerificacao}
+                      disabled={carregandoReenvio || tempoEsperaReenvio > 0}
+                      className="w-full rounded-lg border border-[#3D1A1A] px-4 py-2 text-sm font-medium text-[#3D1A1A] transition-colors hover:bg-[#3D1A1A]/5 disabled:opacity-60"
+                    >
+                      {carregandoReenvio ? 'Enviando...' : tempoEsperaReenvio > 0 ? `Reenviar em ${tempoEsperaReenvio}s` : 'Reenviar email de verificação'}
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
 
             <button
