@@ -66,9 +66,9 @@ export function Login() {
   };
 
   return (
-    <div className="grid min-h-screen grid-cols-1 md:grid-cols-2">
-      <div className="flex items-center justify-center bg-[#F5F0EB] p-6">
-        <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-xl">
+    <div className="grid min-h-dvh grid-cols-1 md:grid-cols-2">
+      <div className="flex items-center justify-center bg-[#F5F0EB] p-4 sm:p-6">
+        <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl sm:p-8">
           <div className="mb-6 flex items-center justify-center gap-2">
             <ForkIcon className="h-7 w-7 text-[#3D1A1A]" />
             <span className="text-lg font-semibold text-[#1A1A1A]">Gastrofy</span>
@@ -140,7 +140,7 @@ export function Login() {
                       type="button"
                       onClick={handleReenviarVerificacao}
                       disabled={carregandoReenvio || tempoEsperaReenvio > 0}
-                      className="w-full rounded-lg border border-[#3D1A1A] px-4 py-2 text-sm font-medium text-[#3D1A1A] transition-colors hover:bg-[#3D1A1A]/5 disabled:opacity-60"
+                      className="min-h-11 w-full rounded-lg border border-[#3D1A1A] px-4 py-2 text-sm font-medium text-[#3D1A1A] transition-colors hover:bg-[#3D1A1A]/5 disabled:opacity-60"
                     >
                       {carregandoReenvio ? 'Enviando...' : tempoEsperaReenvio > 0 ? `Reenviar em ${tempoEsperaReenvio}s` : 'Reenviar email de verificação'}
                     </button>
@@ -152,7 +152,7 @@ export function Login() {
             <button
               type="submit"
               disabled={carregando}
-              className="w-full rounded-lg bg-[#3D1A1A] py-2.5 text-sm font-medium text-white transition-opacity disabled:opacity-60"
+              className="min-h-11 w-full rounded-lg bg-[#3D1A1A] py-2.5 text-sm font-medium text-white transition-opacity disabled:opacity-60"
             >
               {carregando ? 'Entrando...' : 'Entrar'}
             </button>

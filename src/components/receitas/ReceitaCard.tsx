@@ -17,11 +17,11 @@ export function ReceitaCard({
   return (
     <div
       onClick={() => onVisualizar(receita)}
-      className="cursor-pointer rounded-lg border border-[#E5E0DA] bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+      className="cursor-pointer rounded-lg border border-[#E5E0DA] bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:p-6"
     >
       <div className="mb-4 flex items-start justify-between">
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-[#1A1A1A]">
+          <h3 className="break-words text-lg font-semibold text-[#1A1A1A]">
             {receita.nome}
           </h3>
           <p className="mt-1 text-sm text-[#6B6B6B]">
@@ -51,7 +51,7 @@ export function ReceitaCard({
             e.stopPropagation();
             onEditar(receita);
           }}
-          className="flex-1 rounded-lg border border-[#E5E0DA] px-3 py-2 text-sm font-medium text-[#1A1A1A] transition-colors hover:bg-[#F5F0EB]"
+          className="flex-1 rounded-lg border border-[#E5E0DA] min-h-11 px-3 py-2 text-sm font-medium text-[#1A1A1A] transition-colors hover:bg-[#F5F0EB]"
           title="Editar receita"
         >
           <PencilIcon className="h-4 w-4" />
@@ -61,7 +61,7 @@ export function ReceitaCard({
             e.stopPropagation();
             onDeletar(receita);
           }}
-          className="flex-1 rounded-lg border border-[#CC0000] px-3 py-2 text-sm font-medium text-[#CC0000] transition-colors hover:bg-[#FFF5F5]"
+          className="flex-1 rounded-lg border border-[#CC0000] min-h-11 px-3 py-2 text-sm font-medium text-[#CC0000] transition-colors hover:bg-[#FFF5F5]"
           title="Deletar receita"
         >
           <TrashIcon className="h-4 w-4" />

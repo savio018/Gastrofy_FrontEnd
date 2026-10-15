@@ -78,7 +78,7 @@ export function Cadastro() {
 
   if (sucesso) {
     return (
-      <div className="grid min-h-screen grid-cols-1 md:grid-cols-2">
+      <div className="grid min-h-dvh grid-cols-1 md:grid-cols-2">
         <div className="hidden flex-col items-center justify-center gap-3 bg-[#3D1A1A] p-10 text-white md:flex">
           <ForkIcon className="h-10 w-10" />
           <span className="text-2xl font-semibold">Gastrofy</span>
@@ -86,8 +86,8 @@ export function Cadastro() {
             Inteligência e sabor para o seu negócio prosperar.
           </p>
         </div>
-        <div className="flex items-center justify-center bg-[#F5F0EB] p-6">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-xl">
+        <div className="flex items-center justify-center bg-[#F5F0EB] p-4 sm:p-6">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl sm:p-8">
             <ForkIcon className="h-8 w-8 text-[#3D1A1A] mx-auto mb-4" />
             <h1 className="text-center text-xl font-semibold text-[#1A1A1A]">
               Confirme seu e-mail
@@ -109,14 +109,14 @@ export function Cadastro() {
               </p>
               <button
                 onClick={() => setSucesso(false)}
-                className="mt-3 w-full rounded-lg border border-[#3D1A1A] py-2 text-sm font-medium text-[#3D1A1A] hover:bg-[#3D1A1A] hover:text-white transition-colors"
+                className="mt-3 min-h-11 w-full rounded-lg border border-[#3D1A1A] py-2 text-sm font-medium text-[#3D1A1A] hover:bg-[#3D1A1A] hover:text-white transition-colors"
               >
                 Corrigir e-mail
               </button>
             </div>
             <Link
               to="/login"
-              className="mt-4 block text-center text-sm text-[#6B6B6B] hover:underline"
+              className="mt-4 block py-2 text-center text-sm text-[#6B6B6B] hover:underline"
             >
               Já confirmei meu e-mail → Entrar
             </Link>
@@ -127,7 +127,7 @@ export function Cadastro() {
   }
 
   return (
-    <div className="grid min-h-screen grid-cols-1 md:grid-cols-2">
+    <div className="grid min-h-dvh grid-cols-1 md:grid-cols-2">
       <div className="hidden flex-col items-center justify-center gap-3 bg-[#3D1A1A] p-10 text-white md:flex">
         <ForkIcon className="h-10 w-10" />
         <span className="text-2xl font-semibold">Gastrofy</span>
@@ -135,8 +135,8 @@ export function Cadastro() {
           Inteligência e sabor para o seu negócio prosperar.
         </p>
       </div>
-      <div className="flex items-center justify-center bg-[#F5F0EB] p-6">
-        <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-xl">
+      <div className="flex items-center justify-center bg-[#F5F0EB] p-4 sm:p-6">
+        <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl sm:p-8">
           <h1 className="text-center text-xl font-semibold text-[#1A1A1A]">
             Criar conta
           </h1>
@@ -197,7 +197,7 @@ export function Cadastro() {
                 <button
                   type="button"
                   onClick={() => setMostrarSenha(!mostrarSenha)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#6B6B6B]"
+                  className="absolute right-0 top-1/2 flex min-h-11 -translate-y-1/2 items-center px-3 text-xs text-[#6B6B6B]"
                 >
                   {mostrarSenha ? 'Ocultar' : 'Mostrar'}
                 </button>
@@ -239,7 +239,7 @@ export function Cadastro() {
             <button
               type="submit"
               disabled={carregando}
-              className="w-full rounded-lg bg-[#3D1A1A] py-2.5 text-sm font-medium text-white transition-opacity disabled:opacity-60"
+              className="min-h-11 w-full rounded-lg bg-[#3D1A1A] py-2.5 text-sm font-medium text-white transition-opacity disabled:opacity-60"
             >
               {carregando ? 'Criando conta...' : 'Criar conta'}
             </button>

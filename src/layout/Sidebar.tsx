@@ -31,13 +31,22 @@ function iniciais(nome?: string) {
   return (primeira + ultima).toUpperCase();
 }
 
-export function Sidebar() {
+interface SidebarProps {
+  menuAberto: boolean;
+  onFechar: () => void;
+}
+
+export function Sidebar({ menuAberto: drawerAberto, onFechar }: SidebarProps) {
   const [menuAberto, setMenuAberto] = useState(false);
   const { usuario, logout } = useAuth();
   const navigate = useNavigate();
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-20 flex h-screen w-[240px] flex-col bg-[#3D1A1A] text-white">
+    <aside
+      className={`fixed inset-y-0 left-0 z-40 flex h-dvh w-[240px] flex-col bg-[#3D1A1A] text-white transition-transform duration-200 md:z-20 md:translate-x-0 ${
+        drawerAberto ? 'translate-x-0' : '-translate-x-full invisible md:visible'
+      }`}
+    >
       <div className="flex items-center gap-2 px-6 py-6">
         <ForkIcon className="h-6 w-6 shrink-0" />
         <div className="leading-tight">
@@ -53,8 +62,9 @@ export function Sidebar() {
           <NavLink
             key={path}
             to={path}
+            onClick={onFechar}
             className={({ isActive }) =>
-              `flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+              `flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
                 isActive
                   ? 'bg-white/10 text-white'
                   : 'text-white/70 hover:bg-white/5 hover:text-white'
@@ -74,9 +84,10 @@ export function Sidebar() {
               type="button"
               onClick={() => {
                 setMenuAberto(false);
+                onFechar();
                 navigate('/perfil');
               }}
-              className="flex w-full items-center gap-2 px-4 py-2.5 text-left hover:bg-black/5"
+              className="flex min-h-11 w-full items-center gap-2 px-4 py-2.5 text-left hover:bg-black/5"
             >
               <UserCircleIcon className="h-4 w-4" />
               Acessar perfil
@@ -85,9 +96,10 @@ export function Sidebar() {
               type="button"
               onClick={() => {
                 setMenuAberto(false);
+                onFechar();
                 logout();
               }}
-              className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[#CC0000] hover:bg-black/5"
+              className="flex min-h-11 w-full items-center gap-2 px-4 py-2.5 text-left text-[#CC0000] hover:bg-black/5"
             >
               <ArrowRightOnRectangleIcon className="h-4 w-4" />
               Sair
@@ -98,7 +110,7 @@ export function Sidebar() {
         <button
           type="button"
           onClick={() => setMenuAberto((aberto) => !aberto)}
-          className="flex w-full items-center gap-3 rounded-lg px-1 py-1 text-left hover:bg-white/5"
+          className="flex min-h-11 w-full items-center gap-3 rounded-lg px-1 py-1 text-left hover:bg-white/5"
         >
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20 text-sm font-semibold">
             {iniciais(usuario?.nome)}

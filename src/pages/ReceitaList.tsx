@@ -145,7 +145,7 @@ export function ReceitaList() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-[#6B6B6B]">
             Gerencia suas receitas e custos
@@ -153,7 +153,7 @@ export function ReceitaList() {
         </div>
         <button
           onClick={handleAdicionarClick}
-          className="rounded-lg bg-[#3D1A1A] px-6 py-3 font-medium text-white transition-colors hover:bg-[#2D1515]"
+          className="min-h-11 w-full rounded-lg bg-[#3D1A1A] px-6 py-3 font-medium text-white transition-colors hover:bg-[#2D1515] sm:w-auto"
         >
           + Adicionar Receita
         </button>
@@ -168,7 +168,7 @@ export function ReceitaList() {
 
       {/* Lista de Receitas */}
       {receitas.length === 0 ? (
-        <div className="rounded-lg bg-white p-12 text-center shadow-sm">
+        <div className="rounded-lg bg-white p-6 text-center shadow-sm sm:p-12">
           <h2 className="text-xl font-semibold text-[#1A1A1A]">
             Nenhuma receita cadastrada
           </h2>
@@ -183,7 +183,7 @@ export function ReceitaList() {
           </button>
         </div>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
           {receitas.map((receita) => (
             <ReceitaCard
               key={receita.id}

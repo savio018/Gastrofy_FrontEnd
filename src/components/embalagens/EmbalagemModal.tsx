@@ -93,15 +93,15 @@ export function EmbalagemModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/20">
-      <div className="max-h-screen w-full max-w-md overflow-y-auto rounded-2xl bg-white p-8 shadow-xl">
-        <div className="mb-6 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 flex backdrop-blur-sm bg-black/20 sm:items-center sm:justify-center">
+      <div className="h-dvh w-full overflow-y-auto overscroll-contain bg-white p-4 shadow-xl sm:h-auto sm:max-h-[90dvh] sm:max-w-md sm:rounded-2xl sm:p-8">
+        <div className="sticky top-0 z-10 -mx-4 -mt-4 mb-4 flex items-center justify-between bg-white px-4 pb-3 pt-4 sm:mx-0 sm:mt-0 sm:mb-6 sm:p-0">
           <h2 className="text-2xl font-semibold text-[#1A1A1A]">
             {isEditing ? 'Editar Embalagem' : 'Adicionar Embalagem'}
           </h2>
           <button
             onClick={onClose}
-            className="text-[#6B6B6B] hover:text-[#1A1A1A]"
+            className="flex h-11 w-11 items-center justify-center text-[#6B6B6B] hover:text-[#1A1A1A]"
           >
             <XMarkIcon className="h-6 w-6" />
           </button>
@@ -160,7 +160,7 @@ export function EmbalagemModal({
               type="number"
               value={conteudoUnidadeCompra}
               onChange={(e) => setConteudoUnidadeCompra(e.target.value)}
-              step="1"
+              inputMode="numeric" step="1"
               className="mt-1 w-full rounded-lg border border-[#E5E0DA] bg-white px-4 py-2 text-[#1A1A1A] focus:border-[#3D1A1A] focus:outline-none"
               disabled={carregando}
             />
@@ -184,7 +184,7 @@ export function EmbalagemModal({
                 type="number"
                 value={quantidadeCompra}
                 onChange={(e) => setQuantidadeCompra(e.target.value)}
-                step="1"
+                inputMode="numeric" step="1"
                 placeholder="Ex: 5"
                 className="mt-1 w-full rounded-lg border border-[#E5E0DA] bg-white px-4 py-2 text-[#1A1A1A] focus:border-[#3D1A1A] focus:outline-none"
                 disabled={carregando}
@@ -209,7 +209,7 @@ export function EmbalagemModal({
               type="number"
               value={precoUnidadeCompra}
               onChange={(e) => setPrecoUnidadeCompra(e.target.value)}
-              step="0.01"
+              inputMode="decimal" step="0.01"
               placeholder="Ex: 4.50"
               className="mt-1 w-full rounded-lg border border-[#E5E0DA] bg-white px-4 py-2 text-[#1A1A1A] focus:border-[#3D1A1A] focus:outline-none"
               disabled={carregando}
@@ -239,7 +239,7 @@ export function EmbalagemModal({
                 type="number"
                 value={estoqueMinimo}
                 onChange={(e) => setEstoqueMinimo(e.target.value)}
-                step="1"
+                inputMode="numeric" step="1"
                 className="mt-1 w-full rounded-lg border border-[#E5E0DA] bg-white px-4 py-2 text-[#1A1A1A] focus:border-[#3D1A1A] focus:outline-none"
                 disabled={carregando}
               />
@@ -257,7 +257,7 @@ export function EmbalagemModal({
                 type="number"
                 value={estoqueCritico}
                 onChange={(e) => setEstoqueCritico(e.target.value)}
-                step="1"
+                inputMode="numeric" step="1"
                 className="mt-1 w-full rounded-lg border border-[#E5E0DA] bg-white px-4 py-2 text-[#1A1A1A] focus:border-[#3D1A1A] focus:outline-none"
                 disabled={carregando}
               />
@@ -268,18 +268,18 @@ export function EmbalagemModal({
           </div>
 
           {/* Botões */}
-          <div className="mt-6 flex gap-3">
+          <div className="sticky bottom-0 z-10 -mx-4 -mb-4 mt-6 flex gap-3 bg-white px-4 pb-4 pt-3 sm:mx-0 sm:mb-0 sm:p-0">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 rounded-lg border border-[#E5E0DA] px-4 py-2 font-medium text-[#1A1A1A] transition-colors hover:bg-[#F5F0EB]"
+              className="min-h-11 flex-1 rounded-lg border border-[#E5E0DA] px-4 py-2 font-medium text-[#1A1A1A] transition-colors hover:bg-[#F5F0EB]"
               disabled={carregando}
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="flex-1 rounded-lg bg-[#3D1A1A] px-4 py-2 font-medium text-white transition-colors hover:bg-[#2D1515] disabled:opacity-50"
+              className="min-h-11 flex-1 rounded-lg bg-[#3D1A1A] px-4 py-2 font-medium text-white transition-colors hover:bg-[#2D1515] disabled:opacity-50"
               disabled={carregando}
             >
               {carregando ? 'Salvando...' : 'Salvar'}

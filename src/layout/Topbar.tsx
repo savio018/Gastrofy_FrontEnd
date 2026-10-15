@@ -1,11 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BellIcon } from '@heroicons/react/24/outline';
+import { BellIcon, Bars3Icon } from '@heroicons/react/24/outline';
 import { useAlertas } from '../context/AlertasContext';
 import type { Alerta } from '../types';
+import { ForkIcon } from '../components/ForkIcon';
 import { AlertasPanel } from './AlertasPanel';
 
-export function Topbar() {
+interface TopbarProps {
+  onAbrirMenu: () => void;
+}
+
+export function Topbar({ onAbrirMenu }: TopbarProps) {
   const { alertas, carregando } = useAlertas();
   const [painelAberto, setPainelAberto] = useState(false);
   const navigate = useNavigate();
@@ -24,11 +29,25 @@ export function Topbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-10 flex h-16 items-center justify-end bg-white px-6 shadow-sm">
+      <header className="sticky top-0 z-10 flex h-16 items-center bg-white px-4 shadow-sm md:justify-end md:px-6">
+        <button
+          type="button"
+          onClick={onAbrirMenu}
+          className="flex h-11 w-11 items-center justify-center rounded-full hover:bg-black/5 md:hidden"
+          aria-label="Abrir menu"
+        >
+          <Bars3Icon className="h-6 w-6 text-[#1A1A1A]" />
+        </button>
+
+        <div className="ml-2 flex items-center gap-2 md:hidden">
+          <ForkIcon className="h-5 w-5 text-[#3D1A1A]" />
+          <span className="text-base font-semibold text-[#1A1A1A]">Gastrofy</span>
+        </div>
+
         <button
           type="button"
           onClick={() => setPainelAberto(true)}
-          className="relative rounded-full p-2 hover:bg-black/5"
+          className="relative ml-auto flex h-11 w-11 items-center justify-center rounded-full hover:bg-black/5"
           aria-label={`Ver alertas (${alertas.length})`}
         >
           <BellIcon className="h-6 w-6 text-[#1A1A1A]" />

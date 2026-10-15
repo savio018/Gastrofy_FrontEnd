@@ -106,7 +106,7 @@ export function InsumoCard({
     <div
       id={`insumo-${insumo.id}`}
       ref={cardRef}
-      className={`rounded-lg p-6 shadow-sm transition-all hover:shadow-md ${
+      className={`rounded-lg p-4 shadow-sm transition-all hover:shadow-md sm:p-6 ${
         destacadoAqui && loteDestacadoId === null ? 'ring-4 ring-[#FF8C00]/60' : ''
       }`}
       style={{
@@ -115,7 +115,7 @@ export function InsumoCard({
       }}
     >
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-[#1A1A1A]">{insumo.nome}</h3>
+        <h3 className="break-words text-lg font-semibold text-[#1A1A1A]">{insumo.nome}</h3>
         <div className="mt-1">
           <p className="text-sm text-[#6B6B6B]">
             {insumo.estoqueTotal} {insumo.unidadeConsumo}
@@ -128,7 +128,7 @@ export function InsumoCard({
         </div>
         <button
           onClick={() => setLotesExpandidos(!expandido)}
-          className="mt-2 text-xs text-[#3D1A1A] font-medium hover:underline inline-flex items-center gap-1"
+          className="mt-1 inline-flex min-h-11 items-center gap-1 text-xs font-medium text-[#3D1A1A] hover:underline"
         >
           {expandido ? (
             <>
@@ -165,7 +165,7 @@ export function InsumoCard({
                       destacadoLote ? 'ring-2 ring-[#FF8C00]' : ''
                     }`}
                   >
-                    <div className="flex justify-between items-start gap-2">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                       <div className="flex-1">
                         <p className="font-medium text-[#1A1A1A]">
                           {lote.quantidade} {insumo.unidadeConsumo}
@@ -182,11 +182,12 @@ export function InsumoCard({
                           </p>
                         )}
                       </div>
-                      <div className="flex flex-col items-end gap-2">
+                      <div className="flex flex-wrap items-center gap-2 sm:flex-col sm:items-end">
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => onEditarLote(insumo, lote)}
-                            className="text-[#3D1A1A] hover:text-[#2D1515]"
+                            className="flex h-11 w-11 items-center justify-center rounded-lg text-[#3D1A1A] hover:bg-black/5"
+                            aria-label="Editar lote"
                             title="Editar lote"
                           >
                             <PencilSquareIcon className="h-4 w-4" />
@@ -194,7 +195,8 @@ export function InsumoCard({
                           {!alertaLote && (
                             <button
                               onClick={() => onExcluirLote(insumo, lote)}
-                              className="text-[#CC0000] hover:text-[#B30000]"
+                              className="flex h-11 w-11 items-center justify-center rounded-lg text-[#CC0000] hover:bg-[#FFF5F5]"
+                              aria-label="Excluir lote"
                               title="Excluir lote"
                             >
                               <TrashIcon className="h-4 w-4" />
@@ -204,7 +206,7 @@ export function InsumoCard({
                         {alertaLote && (
                           <button
                             onClick={() => onExcluirLote(insumo, lote)}
-                            className="inline-flex items-center gap-1 rounded-md bg-[#CC0000] px-2 py-1 text-[11px] font-medium text-white transition-colors hover:bg-[#B30000]"
+                            className="inline-flex min-h-11 items-center gap-1 rounded-md bg-[#CC0000] px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-[#B30000]"
                           >
                             <TrashIcon className="h-3 w-3" /> Descartar lote
                           </button>
@@ -232,28 +234,28 @@ export function InsumoCard({
       <div className="flex gap-2">
         <button
           onClick={() => onEditar(insumo)}
-          className="flex-1 rounded-lg bg-[#3D1A1A] px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-[#2D1515]"
+          className="flex-1 min-h-11 rounded-lg bg-[#3D1A1A] px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-[#2D1515]"
           title="Editar insumo"
         >
           <PencilIcon className="h-4 w-4" />
         </button>
         <button
           onClick={() => onRepor(insumo)}
-          className="flex-1 rounded-lg bg-[#3D1A1A] px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-[#2D1515]"
+          className="flex-1 min-h-11 rounded-lg bg-[#3D1A1A] px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-[#2D1515]"
           title="Repor estoque"
         >
           <ArrowPathIcon className="h-4 w-4" />
         </button>
         <button
           onClick={() => onCorrigir(insumo)}
-          className="flex-1 rounded-lg bg-[#FF8C00] px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-[#E67E00]"
+          className="flex-1 min-h-11 rounded-lg bg-[#FF8C00] px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-[#E67E00]"
           title="Corrigir estoque"
         >
           <PencilSquareIcon className="h-4 w-4" />
         </button>
         <button
           onClick={() => onDeletar(insumo)}
-          className="flex-1 rounded-lg bg-[#CC0000] px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-[#B30000]"
+          className="flex-1 min-h-11 rounded-lg bg-[#CC0000] px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-[#B30000]"
           title="Deletar insumo"
         >
           <TrashIcon className="h-4 w-4" />

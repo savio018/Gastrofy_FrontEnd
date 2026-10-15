@@ -1,5 +1,5 @@
 import { useState, useEffect, type FormEvent } from 'react';
-import { XMarkIcon, XCircleIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import type { Receita } from '../../types';
 
 interface ReceitaModalProps {
@@ -145,15 +145,15 @@ export function ReceitaModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/20">
-      <div className="max-h-screen w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-8 shadow-xl">
-        <div className="mb-6 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 flex backdrop-blur-sm bg-black/20 sm:items-center sm:justify-center">
+      <div className="h-dvh w-full overflow-y-auto overscroll-contain bg-white p-4 shadow-xl sm:h-auto sm:max-h-[90dvh] sm:max-w-2xl sm:rounded-2xl sm:p-8">
+        <div className="sticky top-0 z-10 -mx-4 -mt-4 mb-4 flex items-center justify-between bg-white px-4 pb-3 pt-4 sm:mx-0 sm:mt-0 sm:mb-6 sm:p-0">
           <h2 className="text-2xl font-semibold text-[#1A1A1A]">
             {isEditing ? 'Editar Receita' : 'Adicionar Receita'}
           </h2>
           <button
             onClick={onClose}
-            className="text-[#6B6B6B] hover:text-[#1A1A1A]"
+            className="flex h-11 w-11 items-center justify-center text-[#6B6B6B] hover:text-[#1A1A1A]"
           >
             <XMarkIcon className="h-6 w-6" />
           </button>
@@ -201,19 +201,12 @@ export function ReceitaModal({
           {/* Rendimento */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <div className="relative inline-block group">
-                <label className="block text-sm font-medium text-[#1A1A1A]">
-                  Rendimento{' '}
-                  <span className="inline-flex items-center">
-                    <InformationCircleIcon className="h-4 w-4 text-[#6B6B6B] cursor-help" />
-                    <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block bg-[#1A1A1A] text-white text-xs rounded-lg px-3 py-2 whitespace-normal w-48 z-10 pointer-events-none shadow-lg">
-                      Quantidade que essa receita produz (número). Ex: 40
-                    </div>
-                  </span>
-                </label>
-              </div>
+              <label className="block text-sm font-medium text-[#1A1A1A]">
+                Rendimento
+              </label>
               <input
                 type="number"
+                inputMode="numeric"
                 value={rendimento}
                 onChange={(e) => setRendimento(e.target.value)}
                 placeholder="Ex: 40"
@@ -221,6 +214,9 @@ export function ReceitaModal({
                 className="mt-1 w-full rounded-lg border border-[#E5E0DA] bg-white px-4 py-2 text-[#1A1A1A] focus:border-[#3D1A1A] focus:outline-none"
                 disabled={carregando}
               />
+              <p className="mt-1 text-xs text-[#6B6B6B]">
+                Quantidade que essa receita produz (número). Ex: 40
+              </p>
               {erros.rendimento && (
                 <p className="mt-1 text-xs text-[#CC0000]">{erros.rendimento}</p>
               )}
@@ -283,6 +279,7 @@ export function ReceitaModal({
                   value={quantidadeInsumo}
                   onChange={(e) => setQuantidadeInsumo(e.target.value)}
                   placeholder="Ex: 150"
+                  inputMode="decimal"
                   step="0.01"
                   className="mt-1 w-full rounded-lg border border-[#E5E0DA] bg-white px-4 py-2 text-[#1A1A1A] focus:border-[#3D1A1A] focus:outline-none"
                   disabled={carregando}
@@ -292,7 +289,7 @@ export function ReceitaModal({
               <button
                 type="button"
                 onClick={handleAdicionarIngrediente}
-                className="w-full rounded-lg border border-[#3D1A1A] px-4 py-2 font-medium text-[#3D1A1A] transition-colors hover:bg-[#F5F0EB]"
+                className="min-h-11 w-full rounded-lg border border-[#3D1A1A] px-4 py-2 font-medium text-[#3D1A1A] transition-colors hover:bg-[#F5F0EB]"
                 disabled={carregando || !insumoSelecionado || !quantidadeInsumo}
               >
                 + Adicionar
@@ -317,7 +314,7 @@ export function ReceitaModal({
                     <button
                       type="button"
                       onClick={() => handleRemoverIngrediente(idx)}
-                      className="text-[#CC0000] hover:text-[#B30000]"
+                      className="flex h-11 w-11 items-center justify-center text-[#CC0000] hover:text-[#B30000]"
                       disabled={carregando}
                     >
                       <XCircleIcon className="h-5 w-5" />
@@ -344,18 +341,18 @@ export function ReceitaModal({
           </div>
 
           {/* Botões */}
-          <div className="mt-6 flex gap-3">
+          <div className="sticky bottom-0 z-10 -mx-4 -mb-4 mt-6 flex gap-3 bg-white px-4 pb-4 pt-3 sm:mx-0 sm:mb-0 sm:p-0">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 rounded-lg border border-[#E5E0DA] px-4 py-2 font-medium text-[#1A1A1A] transition-colors hover:bg-[#F5F0EB]"
+              className="min-h-11 flex-1 rounded-lg border border-[#E5E0DA] px-4 py-2 font-medium text-[#1A1A1A] transition-colors hover:bg-[#F5F0EB]"
               disabled={carregando}
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="flex-1 rounded-lg bg-[#3D1A1A] px-4 py-2 font-medium text-white transition-colors hover:bg-[#2D1515] disabled:opacity-50"
+              className="min-h-11 flex-1 rounded-lg bg-[#3D1A1A] px-4 py-2 font-medium text-white transition-colors hover:bg-[#2D1515] disabled:opacity-50"
               disabled={carregando}
             >
               {carregando ? 'Salvando...' : 'Salvar Receita'}
@@ -364,7 +361,7 @@ export function ReceitaModal({
               <button
                 type="button"
                 onClick={(e) => handleSubmit(e, true)}
-                className="flex-1 rounded-lg bg-[#FFB800] px-4 py-2 font-medium text-[#8B6914] transition-colors hover:bg-[#FFA500] disabled:opacity-50"
+                className="min-h-11 flex-1 rounded-lg bg-[#FFB800] px-4 py-2 font-medium text-[#8B6914] transition-colors hover:bg-[#FFA500] disabled:opacity-50"
                 disabled={carregando}
               >
                 {carregando ? 'Criando...' : 'Criar mesmo assim'}

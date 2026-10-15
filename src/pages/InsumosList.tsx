@@ -305,7 +305,7 @@ export function InsumosList({ busca, onBuscaChange }: InsumosListProps) {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-[#6B6B6B]">
             Gerencia seus ingredientes e estoque
@@ -313,7 +313,7 @@ export function InsumosList({ busca, onBuscaChange }: InsumosListProps) {
         </div>
         <button
           onClick={handleAdicionarClick}
-          className="rounded-lg bg-[#3D1A1A] px-6 py-3 font-medium text-white transition-colors hover:bg-[#2D1515]"
+          className="min-h-11 w-full rounded-lg bg-[#3D1A1A] px-6 py-3 font-medium text-white transition-colors hover:bg-[#2D1515] sm:w-auto"
         >
           + Adicionar Ingrediente
         </button>
@@ -346,7 +346,7 @@ export function InsumosList({ busca, onBuscaChange }: InsumosListProps) {
 
       {/* Lista de Ingredientes */}
       {insumos.length === 0 ? (
-        <div className="rounded-lg bg-white p-12 text-center shadow-sm">
+        <div className="rounded-lg bg-white p-6 text-center shadow-sm sm:p-12">
           <h2 className="text-xl font-semibold text-[#1A1A1A]">
             Nenhum ingrediente cadastrado
           </h2>
@@ -361,7 +361,7 @@ export function InsumosList({ busca, onBuscaChange }: InsumosListProps) {
           </button>
         </div>
       ) : insumosFiltrados.length === 0 ? (
-        <div className="rounded-lg bg-white p-12 text-center shadow-sm">
+        <div className="rounded-lg bg-white p-6 text-center shadow-sm sm:p-12">
           <p className="text-[#1A1A1A]">
             {`Nenhum ingrediente encontrado para '${busca.trim()}'`}
           </p>
@@ -373,7 +373,7 @@ export function InsumosList({ busca, onBuscaChange }: InsumosListProps) {
           </button>
         </div>
       ) : (
-        <div className="grid items-start gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
           {insumosFiltrados.map((insumo) => (
             <InsumoCard
               key={insumo.id}

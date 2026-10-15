@@ -39,8 +39,8 @@ export function ConfirmaDeletarLoteModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/20">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-xl">
+    <div className="fixed inset-0 z-50 flex backdrop-blur-sm bg-black/20 sm:items-center sm:justify-center">
+      <div className="h-dvh w-full overflow-y-auto overscroll-contain bg-white p-4 shadow-xl sm:h-auto sm:max-h-[90dvh] sm:max-w-sm sm:rounded-2xl sm:p-8">
         <h2 className="text-xl font-semibold text-[#1A1A1A]">
           Tem certeza?
         </h2>
@@ -70,11 +70,11 @@ export function ConfirmaDeletarLoteModal({
           </div>
         )}
 
-        <div className="mt-6 flex gap-3">
+        <div className="sticky bottom-0 z-10 -mx-4 -mb-4 mt-6 flex gap-3 bg-white px-4 pb-4 pt-3 sm:mx-0 sm:mb-0 sm:p-0">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-lg border border-[#E5E0DA] px-4 py-2 font-medium text-[#1A1A1A] transition-colors hover:bg-[#F5F0EB]"
+            className="min-h-11 flex-1 rounded-lg border border-[#E5E0DA] px-4 py-2 font-medium text-[#1A1A1A] transition-colors hover:bg-[#F5F0EB]"
             disabled={carregando}
           >
             Cancelar
@@ -82,7 +82,7 @@ export function ConfirmaDeletarLoteModal({
           <button
             type="button"
             onClick={handleConfirmar}
-            className="flex-1 rounded-lg bg-[#CC0000] px-4 py-2 font-medium text-white transition-colors hover:bg-[#B30000] disabled:opacity-50"
+            className="min-h-11 flex-1 rounded-lg bg-[#CC0000] px-4 py-2 font-medium text-white transition-colors hover:bg-[#B30000] disabled:opacity-50"
             disabled={carregando}
           >
             {carregando ? 'Excluindo...' : 'Excluir'}

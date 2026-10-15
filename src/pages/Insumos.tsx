@@ -20,7 +20,7 @@ export function Insumos() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-[#1A1A1A]">Insumos</h1>
+        <h1 className="text-2xl font-bold text-[#1A1A1A] sm:text-3xl">Insumos</h1>
         <p className="mt-1 text-[#6B6B6B]">
           Gerencia seus ingredientes, embalagens e estoque
         </p>
@@ -28,10 +28,10 @@ export function Insumos() {
 
       {/* Abas */}
       <div className="border-b border-[#E5E0DA]">
-        <div className="flex gap-8">
+        <div className="flex">
           <button
             onClick={() => selecionarAba('ingredientes')}
-            className={`pb-3 font-medium transition-colors ${
+            className={`flex min-h-11 flex-1 items-center justify-center pb-3 font-medium transition-colors ${
               abaSelecionada === 'ingredientes'
                 ? 'border-b-2 border-[#3D1A1A] text-[#1A1A1A]'
                 : 'text-[#6B6B6B] hover:text-[#1A1A1A]'
@@ -41,7 +41,7 @@ export function Insumos() {
           </button>
           <button
             onClick={() => selecionarAba('embalagens')}
-            className={`pb-3 font-medium transition-colors ${
+            className={`flex min-h-11 flex-1 items-center justify-center pb-3 font-medium transition-colors ${
               abaSelecionada === 'embalagens'
                 ? 'border-b-2 border-[#3D1A1A] text-[#1A1A1A]'
                 : 'text-[#6B6B6B] hover:text-[#1A1A1A]'

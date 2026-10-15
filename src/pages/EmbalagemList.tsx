@@ -194,7 +194,7 @@ export function EmbalagemList({ busca, onBuscaChange }: EmbalagemListProps) {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-[#6B6B6B]">
             Gerencia suas embalagens e estoque
@@ -202,7 +202,7 @@ export function EmbalagemList({ busca, onBuscaChange }: EmbalagemListProps) {
         </div>
         <button
           onClick={handleAdicionarClick}
-          className="rounded-lg bg-[#3D1A1A] px-6 py-3 font-medium text-white transition-colors hover:bg-[#2D1515]"
+          className="min-h-11 w-full rounded-lg bg-[#3D1A1A] px-6 py-3 font-medium text-white transition-colors hover:bg-[#2D1515] sm:w-auto"
         >
           + Adicionar Embalagem
         </button>
@@ -235,7 +235,7 @@ export function EmbalagemList({ busca, onBuscaChange }: EmbalagemListProps) {
 
       {/* Lista de Embalagens */}
       {embalagens.length === 0 ? (
-        <div className="rounded-lg bg-white p-12 text-center shadow-sm">
+        <div className="rounded-lg bg-white p-6 text-center shadow-sm sm:p-12">
           <h2 className="text-xl font-semibold text-[#1A1A1A]">
             Nenhuma embalagem cadastrada
           </h2>
@@ -250,7 +250,7 @@ export function EmbalagemList({ busca, onBuscaChange }: EmbalagemListProps) {
           </button>
         </div>
       ) : embalagensFiltradas.length === 0 ? (
-        <div className="rounded-lg bg-white p-12 text-center shadow-sm">
+        <div className="rounded-lg bg-white p-6 text-center shadow-sm sm:p-12">
           <p className="text-[#1A1A1A]">
             {`Nenhuma embalagem encontrada para '${busca.trim()}'`}
           </p>
@@ -262,7 +262,7 @@ export function EmbalagemList({ busca, onBuscaChange }: EmbalagemListProps) {
           </button>
         </div>
       ) : (
-        <div className="grid items-start gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
           {embalagensFiltradas.map((embalagem) => (
             <EmbalagemCard
               key={embalagem.id}
