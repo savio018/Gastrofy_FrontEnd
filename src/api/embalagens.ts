@@ -45,3 +45,7 @@ export async function deletarEmbalagem(id: number): Promise<void> {
 export async function reporEstoqueEmbalagem(id: number, quantidade: number): Promise<void> {
   await api.patch(`/embalagens/${id}/estoque?quantidade=${quantidade}`);
 }
+
+export async function corrigirEstoqueEmbalagem(id: number, quantidade: number): Promise<void> {
+  await api.patch(`/embalagens/${id}/estoque?quantidade=-${quantidade}`);
+}

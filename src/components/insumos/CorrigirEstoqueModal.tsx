@@ -1,6 +1,16 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import type { Insumo } from '../../types';
+import { SeletorUnidade } from '../ui/SeletorUnidade';
+import {
+  arredondar2,
+  formatarNumero,
+  numeroOuNull,
+  paraBase,
+  paraCaixas,
+  rotuloCaixa,
+  type ModoUnidade,
+} from '../../utils/unidades';
 
 interface CorrigirEstoqueModalProps {
   isOpen: boolean;
@@ -18,40 +28,79 @@ export function CorrigirEstoqueModal({
   carregando,
 }: CorrigirEstoqueModalProps) {
   const [quantidade, setQuantidade] = useState('');
+  const [modo, setModo] = useState<ModoUnidade>('caixa');
   const [erro, setErro] = useState('');
   const [erroGeral, setErroGeral] = useState('');
 
   useEffect(() => {
     if (isOpen) {
       setQuantidade('');
+      setModo('caixa');
       setErro('');
       setErroGeral('');
     }
   }, [isOpen]);
+
+  if (!isOpen || !insumo) return null;
+
+  const conteudo = insumo.conteudoUnidadeCompra;
+  const temConteudo = conteudo > 0;
+  const unidadeConsumo = insumo.unidadeConsumo;
+  const rotulo = rotuloCaixa(insumo.unidadeCompra);
+  const estoque = insumo.estoqueTotal;
+
+  const numero = numeroOuNull(quantidade);
+  const base =
+    numero === null
+      ? null
+      : modo === 'consumo'
+        ? numero
+        : temConteudo
+          ? paraBase(numero, conteudo)
+          : null;
+  const excede = base !== null && base > estoque;
+  const disponivel =
+    modo === 'caixa' && temConteudo
+      ? `${formatarNumero(paraCaixas(estoque, conteudo))} ${rotulo}`
+      : `${formatarNumero(estoque)} ${unidadeConsumo}`;
+
+  const trocarModo = (novo: ModoUnidade) => {
+    if (novo === modo) return;
+    if (numero !== null && temConteudo) {
+      setQuantidade(
+        String(novo === 'consumo' ? paraBase(numero, conteudo) : paraCaixas(numero, conteudo)),
+      );
+    }
+    setModo(novo);
+  };
+
+  const handleTirarTudo = () => {
+    setModo('consumo');
+    setQuantidade(String(estoque));
+    setErro('');
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setErro('');
     setErroGeral('');
 
-    if (!quantidade) {
+    if (numero === null) {
       setErro('Quantidade obrigatória');
       return;
     }
-
-    const qtd = Number(quantidade);
-    if (qtd <= 0) {
+    if (numero <= 0) {
       setErro('Quantidade deve ser maior que 0');
       return;
     }
-
-    if (!insumo || qtd > insumo.estoqueTotal) {
-      setErro(`Quantidade não pode ser maior que o estoque total (${insumo?.estoqueTotal})`);
+    if (base === null) {
+      setErro('Este insumo não tem a quantidade por caixa cadastrada');
       return;
     }
+    if (excede) return;
 
     try {
-      await onSalvar(qtd);
+      await onSalvar(arredondar2(base));
       onClose();
     } catch (error: any) {
       setErroGeral(
@@ -59,8 +108,6 @@ export function CorrigirEstoqueModal({
       );
     }
   };
-
-  if (!isOpen || !insumo) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex backdrop-blur-sm bg-black/20 sm:items-center sm:justify-center">
@@ -79,11 +126,11 @@ export function CorrigirEstoqueModal({
 
         {/* Estoque atual */}
         <div className="mb-4 rounded-lg bg-[#F5F0EB] p-4">
-          <p className="text-sm text-[#1A1A1A]">
+          <p className="break-words text-sm text-[#1A1A1A]">
             <span className="font-semibold">{insumo.nome}</span>
           </p>
           <p className="mt-1 text-sm text-[#6B6B6B]">
-            Estoque atual: <span className="font-semibold">{insumo.estoqueTotal} {insumo.unidadeConsumo}</span>
+            Estoque atual: <span className="font-semibold">{formatarNumero(estoque)} {unidadeConsumo}</span>
           </p>
         </div>
 
@@ -100,20 +147,58 @@ export function CorrigirEstoqueModal({
             </label>
             <input
               type="number"
+              inputMode="decimal"
               value={quantidade}
               onChange={(e) => setQuantidade(e.target.value)}
-              inputMode="decimal" step="0.01"
-              placeholder="Ex: 5"
+              step="0.01"
+              placeholder="Ex: 1"
               className="mt-1 w-full rounded-lg border border-[#E5E0DA] bg-white px-4 py-2 text-[#1A1A1A] focus:border-[#3D1A1A] focus:outline-none"
               disabled={carregando}
             />
-            <p className="mt-1 text-xs text-[#6B6B6B]">
+            {temConteudo && (
+              <div className="mt-2">
+                <SeletorUnidade<ModoUnidade>
+                  opcoes={[
+                    { valor: 'caixa', texto: rotulo },
+                    { valor: 'consumo', texto: unidadeConsumo || 'unidade' },
+                  ]}
+                  valor={modo}
+                  onChange={trocarModo}
+                  disabled={carregando}
+                />
+              </div>
+            )}
+            {temConteudo && modo === 'caixa' && (
+              <p className="mt-2 text-sm text-[#6B6B6B]">
+                1 {rotulo} = {formatarNumero(conteudo)} {unidadeConsumo}.
+              </p>
+            )}
+            {base !== null && numero !== null && numero > 0 && (
+              <p className="mt-1 text-sm font-medium text-[#1A1A1A]">
+                Vão sair {formatarNumero(base)} {unidadeConsumo}.
+              </p>
+            )}
+            <p className="mt-2 text-xs text-[#6B6B6B]">
               Use para registrar perdas, quebras ou correções - o sistema desconta automaticamente do lote mais próximo de vencer
             </p>
             {erro && (
               <p className="mt-1 text-xs text-[#CC0000]">{erro}</p>
             )}
           </div>
+
+          {excede && (
+            <div className="rounded-lg border border-[#FFB800] bg-[#FFFAF0] p-3">
+              <p className="text-sm text-[#8B6914]">Você só tem {disponivel}.</p>
+              <button
+                type="button"
+                onClick={handleTirarTudo}
+                disabled={carregando}
+                className="mt-2 min-h-11 w-full rounded-lg border border-[#8B6914] px-4 py-2 text-sm font-medium text-[#8B6914] transition-colors hover:bg-[#FFF3D6]"
+              >
+                Tirar tudo ({formatarNumero(estoque)} {unidadeConsumo})
+              </button>
+            </div>
+          )}
 
           {/* Botões */}
           <div className="sticky bottom-0 z-10 -mx-4 -mb-4 mt-6 flex gap-3 bg-white px-4 pb-4 pt-3 sm:mx-0 sm:mb-0 sm:p-0">
@@ -128,7 +213,7 @@ export function CorrigirEstoqueModal({
             <button
               type="submit"
               className="min-h-11 flex-1 rounded-lg bg-[#3D1A1A] px-4 py-2 font-medium text-white transition-colors hover:bg-[#2D1515] disabled:opacity-50"
-              disabled={carregando}
+              disabled={carregando || excede || base === null}
             >
               {carregando ? 'Corrigindo...' : 'Confirmar correção'}
             </button>

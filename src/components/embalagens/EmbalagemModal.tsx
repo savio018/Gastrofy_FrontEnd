@@ -2,6 +2,16 @@ import { useState, useEffect, type FormEvent } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import type { Embalagem } from '../../types';
 import type { CriarEmbalagemDTO } from '../../api/embalagens';
+import { SeletorUnidade } from '../ui/SeletorUnidade';
+import {
+  converterParaBase,
+  formatarNumero,
+  numeroOuNull,
+  paraBase,
+  paraCaixas,
+  rotuloCaixa,
+  type ModoUnidade,
+} from '../../utils/unidades';
 
 interface EmbalagemModalProps {
   isOpen: boolean;
@@ -28,7 +38,33 @@ export function EmbalagemModal({
   const [erros, setErros] = useState<Record<string, string>>({});
   const [erroGeral, setErroGeral] = useState('');
 
+  const [modoMinimo, setModoMinimo] = useState<ModoUnidade>('caixa');
+  const [modoCritico, setModoCritico] = useState<ModoUnidade>('caixa');
+
   const isEditing = !!embalagem;
+
+  const textoLimite = (valor: string, modo: ModoUnidade) => {
+    const conteudo = Number(conteudoUnidadeCompra);
+    const numero = numeroOuNull(valor);
+    if (numero === null || !(conteudo > 0)) return null;
+    if (modo === 'consumo') {
+      return (
+        <p className="mt-1 text-sm text-[#1A1A1A]">
+          ≈ {formatarNumero(paraCaixas(numero, conteudo))} {rotuloCaixa(unidadeCompra)}
+        </p>
+      );
+    }
+    const base = paraBase(numero, conteudo);
+    const inteiro = Math.round(base);
+    if (inteiro !== base) {
+      return (
+        <p className="mt-1 rounded-lg border border-[#FFB800] bg-[#FFFAF0] p-2 text-sm text-[#8B6914]">
+          Esse valor não é exato. Vamos arredondar para {inteiro} unidades.
+        </p>
+      );
+    }
+    return <p className="mt-1 text-sm text-[#1A1A1A]">= {inteiro} unidades</p>;
+  };
   const rotuloUnidadeCompra = unidadeCompra.trim() || 'unidade de compra';
 
   useEffect(() => {
@@ -38,8 +74,19 @@ export function EmbalagemModal({
       setUnidadeCompra(embalagem.unidadeCompra);
       setConteudoUnidadeCompra(String(embalagem.conteudoUnidadeCompra));
       setPrecoUnidadeCompra(String(embalagem.precoUnidadeCompra));
-      setEstoqueMinimo(embalagem.estoqueMinimo ? String(embalagem.estoqueMinimo) : '');
-      setEstoqueCritico(embalagem.estoqueCritico ? String(embalagem.estoqueCritico) : '');
+      const conteudoEmb = embalagem.conteudoUnidadeCompra;
+      const limite = (valor: number | null) =>
+        !valor
+          ? { texto: '', modo: 'caixa' as ModoUnidade }
+          : conteudoEmb > 0
+            ? { texto: String(paraCaixas(valor, conteudoEmb)), modo: 'caixa' as ModoUnidade }
+            : { texto: String(valor), modo: 'consumo' as ModoUnidade };
+      const minimo = limite(embalagem.estoqueMinimo);
+      const critico = limite(embalagem.estoqueCritico);
+      setEstoqueMinimo(minimo.texto);
+      setModoMinimo(minimo.modo);
+      setEstoqueCritico(critico.texto);
+      setModoCritico(critico.modo);
     } else if (isOpen) {
       setNome('');
       setQuantidadeCompra('');
@@ -47,7 +94,9 @@ export function EmbalagemModal({
       setConteudoUnidadeCompra('');
       setPrecoUnidadeCompra('');
       setEstoqueMinimo('');
+      setModoMinimo('caixa');
       setEstoqueCritico('');
+      setModoCritico('caixa');
     }
     setErros({});
     setErroGeral('');
@@ -64,6 +113,13 @@ export function EmbalagemModal({
     if (!conteudoUnidadeCompra) novoErros.conteudoUnidadeCompra = 'Obrigatório';
     if (!precoUnidadeCompra) novoErros.precoUnidadeCompra = 'Obrigatório';
     if (!isEditing && !quantidadeCompra) novoErros.quantidadeCompra = 'Obrigatório';
+    const conteudoNum = Number(conteudoUnidadeCompra);
+    if (estoqueMinimo.trim() !== '' && modoMinimo === 'caixa' && !(conteudoNum > 0)) {
+      novoErros.estoqueMinimo = 'Informe quanto vem em cada caixa para converter';
+    }
+    if (estoqueCritico.trim() !== '' && modoCritico === 'caixa' && !(conteudoNum > 0)) {
+      novoErros.estoqueCritico = 'Informe quanto vem em cada caixa para converter';
+    }
 
     if (Object.keys(novoErros).length > 0) {
       setErros(novoErros);
@@ -76,8 +132,12 @@ export function EmbalagemModal({
         unidadeCompra: unidadeCompra.trim(),
         conteudoUnidadeCompra: Number(conteudoUnidadeCompra),
         precoUnidadeCompra: Number(precoUnidadeCompra),
-        ...(estoqueMinimo && { estoqueMinimo: Number(estoqueMinimo) }),
-        ...(estoqueCritico && { estoqueCritico: Number(estoqueCritico) }),
+        ...(estoqueMinimo && {
+          estoqueMinimo: converterParaBase(estoqueMinimo, modoMinimo, Number(conteudoUnidadeCompra), true) ?? undefined,
+        }),
+        ...(estoqueCritico && {
+          estoqueCritico: converterParaBase(estoqueCritico, modoCritico, Number(conteudoUnidadeCompra), true) ?? undefined,
+        }),
       };
 
       if (!isEditing) {
@@ -233,7 +293,7 @@ export function EmbalagemModal({
             {/* Estoque Mínimo */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-[#1A1A1A]">
-                Me avise quando sobrar pouco
+                Me avise quando sobrar menos de
               </label>
               <input
                 type="number"
@@ -243,15 +303,27 @@ export function EmbalagemModal({
                 className="mt-1 w-full rounded-lg border border-[#E5E0DA] bg-white px-4 py-2 text-[#1A1A1A] focus:border-[#3D1A1A] focus:outline-none"
                 disabled={carregando}
               />
-              <p className="mt-1 text-xs text-[#6B6B6B]">
-                Quantidade que você considera baixa
-              </p>
+              <div className="mt-2">
+                <SeletorUnidade<ModoUnidade>
+                  opcoes={[
+                    { valor: 'caixa', texto: rotuloCaixa(unidadeCompra) },
+                    { valor: 'consumo', texto: 'unidades' },
+                  ]}
+                  valor={modoMinimo}
+                  onChange={setModoMinimo}
+                  disabled={carregando}
+                />
+              </div>
+              {textoLimite(estoqueMinimo, modoMinimo)}
+              {erros.estoqueMinimo && (
+                <p className="mt-1 text-xs text-[#CC0000]">{erros.estoqueMinimo}</p>
+              )}
             </div>
 
             {/* Estoque Crítico */}
             <div>
               <label className="block text-sm font-medium text-[#1A1A1A]">
-                Me avise quando estiver quase acabando
+                Me avise quando estiver quase acabando, menos de
               </label>
               <input
                 type="number"
@@ -261,9 +333,21 @@ export function EmbalagemModal({
                 className="mt-1 w-full rounded-lg border border-[#E5E0DA] bg-white px-4 py-2 text-[#1A1A1A] focus:border-[#3D1A1A] focus:outline-none"
                 disabled={carregando}
               />
-              <p className="mt-1 text-xs text-[#6B6B6B]">
-                Quantidade que você considera urgente
-              </p>
+              <div className="mt-2">
+                <SeletorUnidade<ModoUnidade>
+                  opcoes={[
+                    { valor: 'caixa', texto: rotuloCaixa(unidadeCompra) },
+                    { valor: 'consumo', texto: 'unidades' },
+                  ]}
+                  valor={modoCritico}
+                  onChange={setModoCritico}
+                  disabled={carregando}
+                />
+              </div>
+              {textoLimite(estoqueCritico, modoCritico)}
+              {erros.estoqueCritico && (
+                <p className="mt-1 text-xs text-[#CC0000]">{erros.estoqueCritico}</p>
+              )}
             </div>
           </div>
 

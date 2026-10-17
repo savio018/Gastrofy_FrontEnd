@@ -1,6 +1,14 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import type { Insumo } from '../../types';
+import { SeletorUnidade } from '../ui/SeletorUnidade';
+import {
+  converterParaBase,
+  formatarNumero,
+  paraCaixas,
+  rotuloCaixa,
+  type ModoUnidade,
+} from '../../utils/unidades';
 
 const OPCOES_UNIDADE_CONSUMO = [
   { texto: 'Unidade', valor: 'un' },
@@ -9,6 +17,12 @@ const OPCOES_UNIDADE_CONSUMO = [
   { texto: 'Mililitros', valor: 'ml' },
   { texto: 'Litros', valor: 'l' },
 ];
+
+function limiteInicial(valor: number | null, conteudo: number): { texto: string; modo: ModoUnidade } {
+  if (!valor) return { texto: '', modo: 'caixa' };
+  if (conteudo > 0) return { texto: String(paraCaixas(valor, conteudo)), modo: 'caixa' };
+  return { texto: String(valor), modo: 'consumo' };
+}
 
 interface InsumoModalProps {
   isOpen: boolean;
@@ -35,11 +49,29 @@ export function InsumoModal({
   const [estoqueMinimo, setEstoqueMinimo] = useState('');
   const [estoqueCritico, setEstoqueCritico] = useState('');
   const [diasAvisoValidade, setDiasAvisoValidade] = useState('');
+  const [modoMinimo, setModoMinimo] = useState<ModoUnidade>('caixa');
+  const [modoCritico, setModoCritico] = useState<ModoUnidade>('caixa');
   const [erros, setErros] = useState<Record<string, string>>({});
   const [erroGeral, setErroGeral] = useState('');
 
   const isEditing = !!insumo;
-  const rotuloUnidadeCompra = unidadeCompra.trim() || 'unidade de compra';
+  const rotulo = rotuloCaixa(unidadeCompra);
+  const conteudoNum = Number(conteudoUnidadeCompra);
+  const opcoesLimite: Array<{ valor: ModoUnidade; texto: string }> = [
+    { valor: 'caixa', texto: rotulo },
+    { valor: 'consumo', texto: unidadeConsumo || 'unidade' },
+  ];
+
+  const textoConversao = (valor: string, modo: ModoUnidade) => {
+    const base = converterParaBase(valor, modo, conteudoNum);
+    if (base === null) return '';
+    if (modo === 'consumo') {
+      return conteudoNum > 0
+        ? `≈ ${formatarNumero(paraCaixas(base, conteudoNum))} ${rotulo}`
+        : '';
+    }
+    return `= ${formatarNumero(base)} ${unidadeConsumo}`;
+  };
 
   useEffect(() => {
     if (isOpen && insumo) {
@@ -54,8 +86,12 @@ export function InsumoModal({
       setUnidadeCompra(insumo.unidadeCompra);
       setConteudoUnidadeCompra(String(insumo.conteudoUnidadeCompra));
       setPrecoUnidadeCompra(String(insumo.precoUnidadeCompra));
-      setEstoqueMinimo(insumo.estoqueMinimo ? String(insumo.estoqueMinimo) : '');
-      setEstoqueCritico(insumo.estoqueCritico ? String(insumo.estoqueCritico) : '');
+      const minimo = limiteInicial(insumo.estoqueMinimo, insumo.conteudoUnidadeCompra);
+      const critico = limiteInicial(insumo.estoqueCritico, insumo.conteudoUnidadeCompra);
+      setEstoqueMinimo(minimo.texto);
+      setModoMinimo(minimo.modo);
+      setEstoqueCritico(critico.texto);
+      setModoCritico(critico.modo);
       setDiasAvisoValidade(insumo.diasAvisoValidade ? String(insumo.diasAvisoValidade) : '');
     } else if (isOpen) {
       setNome('');
@@ -66,7 +102,9 @@ export function InsumoModal({
       setConteudoUnidadeCompra('');
       setPrecoUnidadeCompra('');
       setEstoqueMinimo('');
+      setModoMinimo('caixa');
       setEstoqueCritico('');
+      setModoCritico('caixa');
       setDiasAvisoValidade('');
     }
     setErros({});
@@ -83,6 +121,22 @@ export function InsumoModal({
       return;
     }
 
+    const errosLimite: Record<string, string> = {};
+    const mensagemSemConteudo = `Informe quanto vem em cada ${rotulo} para converter`;
+    if (estoqueMinimo.trim() !== '' && modoMinimo === 'caixa' && !(conteudoNum > 0)) {
+      errosLimite.estoqueMinimo = mensagemSemConteudo;
+    }
+    if (estoqueCritico.trim() !== '' && modoCritico === 'caixa' && !(conteudoNum > 0)) {
+      errosLimite.estoqueCritico = mensagemSemConteudo;
+    }
+    if (Object.keys(errosLimite).length > 0) {
+      setErros(errosLimite);
+      return;
+    }
+
+    const minimoBase = converterParaBase(estoqueMinimo, modoMinimo, conteudoNum);
+    const criticoBase = converterParaBase(estoqueCritico, modoCritico, conteudoNum);
+
     try {
       const dados = isEditing
         ? {
@@ -92,8 +146,8 @@ export function InsumoModal({
             unidadeCompra,
             conteudoUnidadeCompra: Number(conteudoUnidadeCompra),
             precoUnidadeCompra: Number(precoUnidadeCompra),
-            estoqueMinimo: estoqueMinimo ? Number(estoqueMinimo) : null,
-            estoqueCritico: estoqueCritico ? Number(estoqueCritico) : null,
+            estoqueMinimo: minimoBase,
+            estoqueCritico: criticoBase,
             diasAvisoValidade: diasAvisoValidade ? Number(diasAvisoValidade) : null,
           }
         : {
@@ -104,8 +158,8 @@ export function InsumoModal({
             unidadeCompra,
             conteudoUnidadeCompra: Number(conteudoUnidadeCompra),
             precoUnidadeCompra: Number(precoUnidadeCompra),
-            estoqueMinimo: estoqueMinimo ? Number(estoqueMinimo) : null,
-            estoqueCritico: estoqueCritico ? Number(estoqueCritico) : null,
+            estoqueMinimo: minimoBase,
+            estoqueCritico: criticoBase,
             diasAvisoValidade: diasAvisoValidade ? Number(diasAvisoValidade) : null,
           };
 
@@ -124,6 +178,9 @@ export function InsumoModal({
   };
 
   if (!isOpen) return null;
+
+  const campoTexto = "mt-1 w-full rounded-lg border border-[#E5E0DA] bg-white px-4 py-2 text-[#1A1A1A] focus:border-[#3D1A1A] focus:outline-none";
+  const perguntaClasse = "block text-base font-medium text-[#1A1A1A]";
 
   return (
     <div className="fixed inset-0 z-50 flex backdrop-blur-sm bg-black/20 sm:items-center sm:justify-center">
@@ -146,161 +203,111 @@ export function InsumoModal({
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* 1. Nome */}
           <div>
-            <label className="block text-sm font-medium text-[#1A1A1A]">
-              Nome do insumo
-            </label>
+            <label className={perguntaClasse}>Qual o nome do insumo?</label>
             <input
               type="text"
               value={nome}
               onChange={(e) => setNome(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-[#E5E0DA] bg-white px-4 py-2 text-[#1A1A1A] focus:border-[#3D1A1A] focus:outline-none"
+              className={campoTexto}
               disabled={carregando}
             />
-            {erros.nome && (
-              <p className="mt-1 text-xs text-[#CC0000]">{erros.nome}</p>
-            )}
+            {erros.nome && <p className="mt-1 text-xs text-[#CC0000]">{erros.nome}</p>}
           </div>
 
-          {/* 2. Unidade de Compra */}
+          {/* 2. Unidade de compra */}
           <div>
-            <label className="block text-sm font-medium text-[#1A1A1A]">
-              Como você compra esse insumo?
-            </label>
+            <label className={perguntaClasse}>Eu compro em...</label>
             <input
               type="text"
               value={unidadeCompra}
               onChange={(e) => setUnidadeCompra(e.target.value)}
-              placeholder="Ex: lata, pacote, kg, litro"
-              className="mt-1 w-full rounded-lg border border-[#E5E0DA] bg-white px-4 py-2 text-[#1A1A1A] focus:border-[#3D1A1A] focus:outline-none"
+              placeholder="lata, cartela, pacote, saco"
+              className={campoTexto}
               disabled={carregando}
             />
             {erros.unidadeCompra && (
-              <p className="mt-1 text-xs text-[#CC0000]">
-                {erros.unidadeCompra}
-              </p>
+              <p className="mt-1 text-xs text-[#CC0000]">{erros.unidadeCompra}</p>
             )}
           </div>
 
-          {/* 3. Unidade de Consumo (campo isolado: futuramente vira select) */}
+          {/* 3. Conteúdo de cada caixa + unidade de consumo (campo isolado: futuramente vira select) */}
           <div>
-            <label className="block text-sm font-medium text-[#1A1A1A]">
-              Como você usa nas receitas?
-            </label>
-            <div className="mt-1 flex flex-wrap gap-2">
-              {OPCOES_UNIDADE_CONSUMO.map((opcao) => {
-                const selecionado = unidadeConsumo === opcao.valor;
-                return (
-                  <button
-                    key={opcao.valor}
-                    type="button"
-                    onClick={() => setUnidadeConsumo(opcao.valor)}
-                    aria-pressed={selecionado}
-                    disabled={carregando}
-                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50 ${
-                      selecionado
-                        ? 'border-[#3D1A1A] bg-[#3D1A1A] text-white'
-                        : 'border-[#E5E0DA] bg-white text-[#1A1A1A] hover:bg-[#F5F0EB]'
-                    }`}
-                  >
-                    {opcao.texto}
-                  </button>
-                );
-              })}
-            </div>
-            {erros.unidadeConsumo && (
-              <p className="mt-1 text-xs text-[#CC0000]">
-                {erros.unidadeConsumo}
-              </p>
-            )}
-          </div>
-
-          {/* 4. Conteúdo por Unidade de Compra */}
-          <div>
-            <label className="block text-sm font-medium text-[#1A1A1A]">
-              Quanto vem em cada {rotuloUnidadeCompra}?
-            </label>
+            <label className={perguntaClasse}>Cada {rotulo} tem...</label>
             <input
               type="number"
               value={conteudoUnidadeCompra}
               onChange={(e) => setConteudoUnidadeCompra(e.target.value)}
-              inputMode="decimal" step="0.01"
-              className="mt-1 w-full rounded-lg border border-[#E5E0DA] bg-white px-4 py-2 text-[#1A1A1A] focus:border-[#3D1A1A] focus:outline-none"
+              inputMode="decimal"
+              step="0.01"
+              className={campoTexto}
               disabled={carregando}
             />
-            <p className="mt-1 text-xs text-[#6B6B6B]">
-              Ex: se você compra uma lata, quantos ml/g tem dentro dela?
-            </p>
+            <div className="mt-2">
+              <SeletorUnidade<string>
+                opcoes={OPCOES_UNIDADE_CONSUMO.map((o) => ({ valor: o.valor, texto: o.texto }))}
+                valor={unidadeConsumo}
+                onChange={setUnidadeConsumo}
+                disabled={carregando}
+              />
+            </div>
+            {erros.unidadeConsumo && (
+              <p className="mt-1 text-xs text-[#CC0000]">{erros.unidadeConsumo}</p>
+            )}
             {erros.conteudoUnidadeCompra && (
-              <p className="mt-1 text-xs text-[#CC0000]">
-                {erros.conteudoUnidadeCompra}
-              </p>
+              <p className="mt-1 text-xs text-[#CC0000]">{erros.conteudoUnidadeCompra}</p>
             )}
           </div>
 
-          {/* 5. Quantidade de Compra (só no criar) */}
+          {/* 4. Quantidade comprada (só no criar) */}
           {!isEditing && (
             <div>
-              <label className="block text-sm font-medium text-[#1A1A1A]">
-                Quantidade comprada agora (em {rotuloUnidadeCompra})
-              </label>
+              <label className={perguntaClasse}>Quantas {rotulo} você comprou?</label>
               <input
                 type="number"
                 value={quantidadeCompra}
                 onChange={(e) => setQuantidadeCompra(e.target.value)}
-                inputMode="decimal" step="0.01"
+                inputMode="decimal"
+                step="0.01"
                 placeholder="Ex: 5"
-                className="mt-1 w-full rounded-lg border border-[#E5E0DA] bg-white px-4 py-2 text-[#1A1A1A] focus:border-[#3D1A1A] focus:outline-none"
+                className={campoTexto}
                 disabled={carregando}
               />
-              <p className="mt-1 text-xs text-[#6B6B6B]">
-                Ex: comprei 5 pacotes/latas
-              </p>
               {erros.quantidadeCompra && (
-                <p className="mt-1 text-xs text-[#CC0000]">
-                  {erros.quantidadeCompra}
-                </p>
+                <p className="mt-1 text-xs text-[#CC0000]">{erros.quantidadeCompra}</p>
               )}
             </div>
           )}
 
-          {/* 6. Preço por Unidade de Compra */}
+          {/* 5. Preço por caixa */}
           <div>
-            <label className="block text-sm font-medium text-[#1A1A1A]">
-              Quanto custou cada {rotuloUnidadeCompra}?
-            </label>
+            <label className={perguntaClasse}>Quanto custou cada {rotulo}?</label>
             <input
               type="number"
               value={precoUnidadeCompra}
               onChange={(e) => setPrecoUnidadeCompra(e.target.value)}
-              inputMode="decimal" step="0.01"
+              inputMode="decimal"
+              step="0.01"
               placeholder="Ex: 4.50"
-              className="mt-1 w-full rounded-lg border border-[#E5E0DA] bg-white px-4 py-2 text-[#1A1A1A] focus:border-[#3D1A1A] focus:outline-none"
+              className={campoTexto}
               disabled={carregando}
             />
-            <p className="mt-1 text-xs text-[#6B6B6B]">
-              Ex: cada lata custou R$ 4,50
-            </p>
             {erros.precoUnidadeCompra && (
-              <p className="mt-1 text-xs text-[#CC0000]">
-                {erros.precoUnidadeCompra}
-              </p>
+              <p className="mt-1 text-xs text-[#CC0000]">{erros.precoUnidadeCompra}</p>
             )}
           </div>
 
-          {/* 7. Validade dessa compra (só no criar) */}
+          {/* 6. Validade (só no criar) */}
           {!isEditing && (
             <div>
-              <label className="block text-sm font-medium text-[#1A1A1A]">
-                Validade dessa compra
-              </label>
+              <label className={perguntaClasse}>Até quando vale?</label>
               <input
                 type="date"
                 value={dataValidade}
                 onChange={(e) => setDataValidade(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-[#E5E0DA] bg-white px-4 py-2 text-[#1A1A1A] focus:border-[#3D1A1A] focus:outline-none"
+                className={campoTexto}
                 disabled={carregando}
               />
               {erros.dataValidade && (
@@ -309,59 +316,77 @@ export function InsumoModal({
             </div>
           )}
 
-          {/* 8. Seção de Alertas */}
+          {/* 7. Avisos */}
           <div className="border-t border-[#E5E0DA] pt-4">
-            <h3 className="text-sm font-semibold text-[#1A1A1A] mb-4">
-              Alertas (opcional)
+            <h3 className="mb-4 text-base font-semibold text-[#1A1A1A]">
+              Avisos (opcional)
             </h3>
 
-            {/* Estoque Mínimo */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-[#1A1A1A]">
-                Me avise quando sobrar pouco
-              </label>
+            <div className="mb-5">
+              <label className={perguntaClasse}>Me avise quando sobrar menos de</label>
               <input
                 type="number"
                 value={estoqueMinimo}
                 onChange={(e) => setEstoqueMinimo(e.target.value)}
-                inputMode="decimal" step="0.01"
-                className="mt-1 w-full rounded-lg border border-[#E5E0DA] bg-white px-4 py-2 text-[#1A1A1A] focus:border-[#3D1A1A] focus:outline-none"
+                inputMode="decimal"
+                step="0.01"
+                className={campoTexto}
                 disabled={carregando}
               />
-              <p className="mt-1 text-xs text-[#6B6B6B]">
-                Quantidade que você considera baixa
-              </p>
+              <div className="mt-2">
+                <SeletorUnidade<ModoUnidade>
+                  opcoes={opcoesLimite}
+                  valor={modoMinimo}
+                  onChange={setModoMinimo}
+                  disabled={carregando}
+                />
+              </div>
+              {textoConversao(estoqueMinimo, modoMinimo) && (
+                <p className="mt-1 text-sm text-[#1A1A1A]">{textoConversao(estoqueMinimo, modoMinimo)}</p>
+              )}
+              {erros.estoqueMinimo && (
+                <p className="mt-1 text-xs text-[#CC0000]">{erros.estoqueMinimo}</p>
+              )}
             </div>
 
-            {/* Estoque Crítico */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-[#1A1A1A]">
-                Me avise quando estiver quase acabando
+            <div className="mb-5">
+              <label className={perguntaClasse}>
+                Me avise quando estiver quase acabando, menos de
               </label>
               <input
                 type="number"
                 value={estoqueCritico}
                 onChange={(e) => setEstoqueCritico(e.target.value)}
-                inputMode="decimal" step="0.01"
-                className="mt-1 w-full rounded-lg border border-[#E5E0DA] bg-white px-4 py-2 text-[#1A1A1A] focus:border-[#3D1A1A] focus:outline-none"
+                inputMode="decimal"
+                step="0.01"
+                className={campoTexto}
                 disabled={carregando}
               />
-              <p className="mt-1 text-xs text-[#6B6B6B]">
-                Quantidade que você considera urgente
-              </p>
+              <div className="mt-2">
+                <SeletorUnidade<ModoUnidade>
+                  opcoes={opcoesLimite}
+                  valor={modoCritico}
+                  onChange={setModoCritico}
+                  disabled={carregando}
+                />
+              </div>
+              {textoConversao(estoqueCritico, modoCritico) && (
+                <p className="mt-1 text-sm text-[#1A1A1A]">{textoConversao(estoqueCritico, modoCritico)}</p>
+              )}
+              {erros.estoqueCritico && (
+                <p className="mt-1 text-xs text-[#CC0000]">{erros.estoqueCritico}</p>
+              )}
             </div>
 
-            {/* Dias de Aviso de Validade */}
             <div>
-              <label className="block text-sm font-medium text-[#1A1A1A]">
-                Me avise quantos dias antes de vencer?
-              </label>
+              <label className={perguntaClasse}>Me avise quantos dias antes de vencer?</label>
               <input
                 type="number"
                 value={diasAvisoValidade}
                 onChange={(e) => setDiasAvisoValidade(e.target.value)}
-                inputMode="numeric" step="1"
-                className="mt-1 w-full rounded-lg border border-[#E5E0DA] bg-white px-4 py-2 text-[#1A1A1A] focus:border-[#3D1A1A] focus:outline-none"
+                inputMode="numeric"
+                step="1"
+                className={campoTexto}
                 disabled={carregando}
               />
               <p className="mt-1 text-xs text-[#6B6B6B]">

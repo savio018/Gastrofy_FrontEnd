@@ -1,6 +1,7 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import type { Embalagem } from '../../types';
+import { numeroOuNull } from '../../utils/unidades';
 
 interface ReporEstoqueEmbalagemModalProps {
   isOpen: boolean;
@@ -29,13 +30,24 @@ export function ReporEstoqueEmbalagemModal({
     }
   }, [isOpen]);
 
+  if (!isOpen || !embalagem) return null;
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setErro('');
     setErroGeral('');
 
+    const qnt = numeroOuNull(quantidade);
+    if (qnt === null || qnt <= 0) {
+      setErro('Informe uma quantidade maior que 0');
+      return;
+    }
+    if (!Number.isInteger(qnt)) {
+      setErro('Informe um número inteiro de unidades');
+      return;
+    }
+
     try {
-      const qnt = Number(quantidade);
       await onSalvar(qnt);
       onClose();
     } catch (error: any) {
@@ -44,22 +56,6 @@ export function ReporEstoqueEmbalagemModal({
       );
     }
   };
-
-  // Determina o texto e cor do botão baseado no valor
-  const qnt = Number(quantidade);
-  const isNegativo = qnt < 0;
-  const isvazio = !quantidade || qnt === 0;
-  const botaoTexto = carregando
-    ? 'Processando...'
-    : isvazio
-      ? 'Repor Estoque'
-      : isNegativo
-        ? 'Diminuir Estoque'
-        : 'Repor Estoque';
-  const botaoCor = isNegativo ? '#CC0000' : '#3D1A1A';
-  const botaoCorHover = isNegativo ? '#B30000' : '#2D1515';
-
-  if (!isOpen || !embalagem) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex backdrop-blur-sm bg-black/20 sm:items-center sm:justify-center">
@@ -77,7 +73,7 @@ export function ReporEstoqueEmbalagemModal({
         </div>
 
         <div className="mb-4 rounded-lg bg-[#F5F0EB] p-4">
-          <p className="text-sm text-[#1A1A1A]">
+          <p className="break-words text-sm text-[#1A1A1A]">
             <span className="font-semibold">{embalagem.nome}</span>
           </p>
           <p className="mt-1 text-sm text-[#6B6B6B]">
@@ -94,20 +90,19 @@ export function ReporEstoqueEmbalagemModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-[#1A1A1A]">
-              Quantidade *
+              Quantidade
             </label>
             <input
               type="number"
               value={quantidade}
               onChange={(e) => setQuantidade(e.target.value)}
-              inputMode="numeric" step="1"
+              inputMode="numeric"
+              step="1"
+              min="1"
               className="mt-1 w-full rounded-lg border border-[#E5E0DA] bg-white px-4 py-2 text-[#1A1A1A] focus:border-[#3D1A1A] focus:outline-none"
               placeholder="Digite a quantidade"
               disabled={carregando}
             />
-            <p className="mt-1 text-xs text-[#6B6B6B]">
-              Use números negativos para corrigir estoque para menos
-            </p>
             {erro && (
               <p className="mt-1 text-xs text-[#CC0000]">{erro}</p>
             )}
@@ -124,19 +119,10 @@ export function ReporEstoqueEmbalagemModal({
             </button>
             <button
               type="submit"
-              style={{
-                backgroundColor: botaoCor,
-              }}
-              className="min-h-11 flex-1 rounded-lg px-4 py-2 font-medium text-white transition-colors disabled:opacity-50 hover:opacity-90"
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = botaoCorHover;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = botaoCor;
-              }}
+              className="min-h-11 flex-1 rounded-lg bg-[#3D1A1A] px-4 py-2 font-medium text-white transition-colors hover:bg-[#2D1515] disabled:opacity-50"
               disabled={carregando}
             >
-              {botaoTexto}
+              {carregando ? 'Processando...' : 'Repor Estoque'}
             </button>
           </div>
         </form>

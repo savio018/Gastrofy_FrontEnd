@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { PencilIcon, ArrowPathIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, ArrowPathIcon, TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import type { Embalagem, Alerta, TipoAlerta, DestaqueItem } from '../../types';
 
 interface EmbalagemCardProps {
@@ -8,6 +8,7 @@ interface EmbalagemCardProps {
   destaque: DestaqueItem | null;
   onEditar: (embalagem: Embalagem) => void;
   onRepor: (embalagem: Embalagem) => void;
+  onCorrigir: (embalagem: Embalagem) => void;
   onDeletar: (embalagem: Embalagem) => void;
 }
 
@@ -17,6 +18,7 @@ export function EmbalagemCard({
   destaque,
   onEditar,
   onRepor,
+  onCorrigir,
   onDeletar,
 }: EmbalagemCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -121,6 +123,14 @@ export function EmbalagemCard({
           title="Repor estoque"
         >
           <ArrowPathIcon className="h-4 w-4" />
+        </button>
+        <button
+          onClick={() => onCorrigir(embalagem)}
+          className="flex-1 rounded-lg bg-[#FF8C00] min-h-11 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-[#E67E00]"
+          title="Corrigir estoque"
+          aria-label="Corrigir estoque"
+        >
+          <PencilSquareIcon className="h-4 w-4" />
         </button>
         <button
           onClick={() => onDeletar(embalagem)}

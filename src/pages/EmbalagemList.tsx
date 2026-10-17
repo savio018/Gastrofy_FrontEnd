@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { EmbalagemCard } from '../components/embalagens/EmbalagemCard';
 import { EmbalagemModal } from '../components/embalagens/EmbalagemModal';
 import { ReporEstoqueEmbalagemModal } from '../components/embalagens/ReporEstoqueEmbalagemModal';
+import { CorrigirEstoqueEmbalagemModal } from '../components/embalagens/CorrigirEstoqueEmbalagemModal';
 import { ConfirmaDeletearEmbalagemModal } from '../components/embalagens/ConfirmaDeletearEmbalagemModal';
 import {
   listarEmbalagens,
@@ -11,6 +12,7 @@ import {
   atualizarEmbalagem,
   deletarEmbalagem,
   reporEstoqueEmbalagem,
+  corrigirEstoqueEmbalagem,
   type CriarEmbalagemDTO,
   type AtualizarEmbalagemDTO,
 } from '../api/embalagens';
@@ -38,6 +40,8 @@ export function EmbalagemList({ busca, onBuscaChange }: EmbalagemListProps) {
   const [embalagemRepondo, setEmbalagemRepondo] = useState<Embalagem | null>(null);
   const [deletarModalAberto, setDeletarModalAberto] = useState(false);
   const [embalagemDeletando, setEmbalagemDeletando] = useState<Embalagem | null>(null);
+  const [corrigirModalAberto, setCorrigirModalAberto] = useState(false);
+  const [embalagemCorrigindo, setEmbalagemCorrigindo] = useState<Embalagem | null>(null);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [destaque, setDestaque] = useState<DestaqueItem | null>(null);
@@ -143,6 +147,32 @@ export function EmbalagemList({ busca, onBuscaChange }: EmbalagemListProps) {
     } finally {
       setCarregandoOperacao(false);
     }
+  };
+
+  const handleCorrigirClick = (embalagem: Embalagem) => {
+    setEmbalagemCorrigindo(embalagem);
+    setCorrigirModalAberto(true);
+  };
+
+  const handleCorrigirEstoque = async (quantidade: number) => {
+    if (!embalagemCorrigindo) return;
+
+    setCarregandoOperacao(true);
+    try {
+      await corrigirEstoqueEmbalagem(embalagemCorrigindo.id, quantidade);
+      toast.success('Estoque corrigido com sucesso!');
+      await carregarDados();
+      await recarregarAlertas();
+      setCorrigirModalAberto(false);
+      setEmbalagemCorrigindo(null);
+    } finally {
+      setCarregandoOperacao(false);
+    }
+  };
+
+  const handleFecharCorrigirModal = () => {
+    setCorrigirModalAberto(false);
+    setEmbalagemCorrigindo(null);
   };
 
   const handleConfirmarDelecao = async () => {
@@ -271,6 +301,7 @@ export function EmbalagemList({ busca, onBuscaChange }: EmbalagemListProps) {
               destaque={destaque}
               onEditar={handleEditarClick}
               onRepor={handleReporClick}
+              onCorrigir={handleCorrigirClick}
               onDeletar={handleDeletarClick}
             />
           ))}
@@ -291,6 +322,14 @@ export function EmbalagemList({ busca, onBuscaChange }: EmbalagemListProps) {
         embalagem={embalagemRepondo}
         onClose={handleFecharReportModal}
         onSalvar={handleReporEstoque}
+        carregando={carregandoOperacao}
+      />
+
+      <CorrigirEstoqueEmbalagemModal
+        isOpen={corrigirModalAberto}
+        embalagem={embalagemCorrigindo}
+        onClose={handleFecharCorrigirModal}
+        onSalvar={handleCorrigirEstoque}
         carregando={carregandoOperacao}
       />
 
