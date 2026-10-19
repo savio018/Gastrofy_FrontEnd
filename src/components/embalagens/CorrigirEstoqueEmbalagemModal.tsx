@@ -62,7 +62,7 @@ export function CorrigirEstoqueEmbalagemModal({
   const trocarModo = (novo: ModoUnidade) => {
     if (novo === modo) return;
     if (numero !== null && temConteudo) {
-      setQuantidade(String(novo === 'consumo' ? paraBase(numero, conteudo) : paraCaixas(numero, conteudo)));
+      setQuantidade(String((novo === 'consumo' ? paraBase(numero, conteudo) : paraCaixas(numero, conteudo)) ?? ''));
     }
     setModo(novo);
     setErro('');

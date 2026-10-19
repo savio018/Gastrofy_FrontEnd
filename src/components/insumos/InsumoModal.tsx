@@ -20,7 +20,7 @@ const OPCOES_UNIDADE_CONSUMO = [
 
 function limiteInicial(valor: number | null, conteudo: number): { texto: string; modo: ModoUnidade } {
   if (!valor) return { texto: '', modo: 'caixa' };
-  if (conteudo > 0) return { texto: String(paraCaixas(valor, conteudo)), modo: 'caixa' };
+  if (conteudo > 0) return { texto: String(paraCaixas(valor, conteudo) ?? ''), modo: 'caixa' };
   return { texto: String(valor), modo: 'consumo' };
 }
 
@@ -118,6 +118,11 @@ export function InsumoModal({
 
     if (!unidadeConsumo) {
       setErros({ unidadeConsumo: 'Obrigatório' });
+      return;
+    }
+
+    if (!isEditing && !(Number.isFinite(conteudoNum) && conteudoNum > 0)) {
+      setErros({ conteudoUnidadeCompra: 'Informe um valor maior que 0' });
       return;
     }
 
@@ -240,6 +245,7 @@ export function InsumoModal({
               type="number"
               value={conteudoUnidadeCompra}
               onChange={(e) => setConteudoUnidadeCompra(e.target.value)}
+              min={isEditing ? undefined : '0.01'}
               inputMode="decimal"
               step="0.01"
               className={campoTexto}

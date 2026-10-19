@@ -55,6 +55,7 @@ export function EmbalagemModal({
       );
     }
     const base = paraBase(numero, conteudo);
+    if (base === null) return null;
     const inteiro = Math.round(base);
     if (inteiro !== base) {
       return (
@@ -79,7 +80,7 @@ export function EmbalagemModal({
         !valor
           ? { texto: '', modo: 'caixa' as ModoUnidade }
           : conteudoEmb > 0
-            ? { texto: String(paraCaixas(valor, conteudoEmb)), modo: 'caixa' as ModoUnidade }
+            ? { texto: String(paraCaixas(valor, conteudoEmb) ?? ''), modo: 'caixa' as ModoUnidade }
             : { texto: String(valor), modo: 'consumo' as ModoUnidade };
       const minimo = limite(embalagem.estoqueMinimo);
       const critico = limite(embalagem.estoqueCritico);
@@ -110,7 +111,11 @@ export function EmbalagemModal({
     const novoErros: Record<string, string> = {};
     if (!nome.trim()) novoErros.nome = 'Nome obrigatório';
     if (!unidadeCompra.trim()) novoErros.unidadeCompra = 'Obrigatório';
-    if (!conteudoUnidadeCompra) novoErros.conteudoUnidadeCompra = 'Obrigatório';
+    if (!conteudoUnidadeCompra) {
+      novoErros.conteudoUnidadeCompra = 'Obrigatório';
+    } else if (!isEditing && !(Number(conteudoUnidadeCompra) > 0)) {
+      novoErros.conteudoUnidadeCompra = 'Informe um valor maior que 0';
+    }
     if (!precoUnidadeCompra) novoErros.precoUnidadeCompra = 'Obrigatório';
     if (!isEditing && !quantidadeCompra) novoErros.quantidadeCompra = 'Obrigatório';
     const conteudoNum = Number(conteudoUnidadeCompra);
@@ -220,6 +225,7 @@ export function EmbalagemModal({
               type="number"
               value={conteudoUnidadeCompra}
               onChange={(e) => setConteudoUnidadeCompra(e.target.value)}
+              min={isEditing ? undefined : 1}
               inputMode="numeric" step="1"
               className="mt-1 w-full rounded-lg border border-[#E5E0DA] bg-white px-4 py-2 text-[#1A1A1A] focus:border-[#3D1A1A] focus:outline-none"
               disabled={carregando}

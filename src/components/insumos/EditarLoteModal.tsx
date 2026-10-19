@@ -43,7 +43,7 @@ export function EditarLoteModal({
     if (isOpen && lote) {
       const modoInicial: ModoUnidade = temConteudo ? 'caixa' : 'consumo';
       setModo(modoInicial);
-      setValor(String(modoInicial === 'caixa' ? paraCaixas(lote.quantidade, conteudo) : lote.quantidade));
+      setValor(String(modoInicial === 'caixa' ? (paraCaixas(lote.quantidade, conteudo) ?? '') : lote.quantidade));
       setErro('');
       setErroGeral('');
       setConfirmaDelecao(false);
@@ -76,14 +76,14 @@ export function EditarLoteModal({
 
   const tirarMetade = () => {
     const metadeBase = arredondar2(lote.quantidade / 2);
-    setValor(String(modo === 'caixa' && temConteudo ? paraCaixas(metadeBase, conteudo) : metadeBase));
+    setValor(String(modo === 'caixa' && temConteudo ? (paraCaixas(metadeBase, conteudo) ?? '') : metadeBase));
     setConfirmaDelecao(false);
   };
 
   const trocarModo = (novo: ModoUnidade) => {
     if (novo === modo) return;
     if (numero !== null && temConteudo) {
-      setValor(String(novo === 'consumo' ? paraBase(numero, conteudo) : paraCaixas(numero, conteudo)));
+      setValor(String((novo === 'consumo' ? paraBase(numero, conteudo) : paraCaixas(numero, conteudo)) ?? ''));
     }
     setModo(novo);
     setConfirmaDelecao(false);

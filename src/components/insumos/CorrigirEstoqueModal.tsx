@@ -68,7 +68,7 @@ export function CorrigirEstoqueModal({
     if (novo === modo) return;
     if (numero !== null && temConteudo) {
       setQuantidade(
-        String(novo === 'consumo' ? paraBase(numero, conteudo) : paraCaixas(numero, conteudo)),
+        String((novo === 'consumo' ? paraBase(numero, conteudo) : paraCaixas(numero, conteudo)) ?? ''),
       );
     }
     setModo(novo);

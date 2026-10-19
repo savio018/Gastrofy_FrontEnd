@@ -48,7 +48,8 @@ describe('paraBase e paraCaixas', () => {
     ];
     for (const [caixas, conteudo] of entradas) {
       for (const valor of [paraBase(caixas, conteudo), paraCaixas(caixas, conteudo)]) {
-        expect(Math.abs(valor * 100 - Math.round(valor * 100))).toBeLessThan(1e-9);
+        expect(valor).not.toBeNull();
+        expect(Math.abs((valor as number) * 100 - Math.round((valor as number) * 100))).toBeLessThan(1e-9);
       }
     }
   });
@@ -57,33 +58,25 @@ describe('paraBase e paraCaixas', () => {
     expect(paraCaixas(1000, 395)).toBe(2.53);
   });
 
-  describe('conteúdo por caixa inválido (comportamento atual, sem alterar a função)', () => {
-    it('paraBase com conteúdo 0 devolve 0 sem avisar', () => {
-      expect(paraBase(2, 0)).toBe(0);
+  describe('conteúdo por caixa inválido devolve null', () => {
+    it.each([
+      ['zero', 0],
+      ['negativo', -395],
+      ['NaN', NaN],
+      ['Infinity', Infinity],
+      ['-Infinity', -Infinity],
+    ])('paraBase com conteúdo %s devolve null', (_nome, conteudo) => {
+      expect(paraBase(2, conteudo)).toBeNull();
     });
 
-    it('paraBase com conteúdo negativo devolve valor negativo', () => {
-      expect(paraBase(2, -395)).toBe(-790);
-    });
-
-    it('paraBase com conteúdo NaN devolve NaN', () => {
-      expect(paraBase(2, NaN)).toBeNaN();
-    });
-
-    it('paraCaixas com conteúdo 0 devolve Infinity para base positiva', () => {
-      expect(paraCaixas(790, 0)).toBe(Infinity);
-    });
-
-    it('paraCaixas com conteúdo 0 e base 0 devolve NaN', () => {
-      expect(paraCaixas(0, 0)).toBeNaN();
-    });
-
-    it('paraCaixas com conteúdo negativo devolve valor negativo', () => {
-      expect(paraCaixas(790, -395)).toBe(-2);
-    });
-
-    it('paraCaixas com conteúdo NaN devolve NaN', () => {
-      expect(paraCaixas(790, NaN)).toBeNaN();
+    it.each([
+      ['zero', 0],
+      ['negativo', -395],
+      ['NaN', NaN],
+      ['Infinity', Infinity],
+    ])('paraCaixas com conteúdo %s devolve null, nunca Infinity ou NaN', (_nome, conteudo) => {
+      expect(paraCaixas(790, conteudo)).toBeNull();
+      expect(paraCaixas(0, conteudo)).toBeNull();
     });
   });
 });
@@ -103,9 +96,9 @@ describe('formatarNumero', () => {
     expect(formatarNumero(1975)).toBe('1975');
   });
 
-  it('valores não finitos saem como estão (comportamento atual)', () => {
-    expect(formatarNumero(Infinity)).toBe('∞');
-    expect(formatarNumero(NaN)).toBe('NaN');
+  it('mostra "—" para valor ausente (null)', () => {
+    expect(formatarNumero(null)).toBe('—');
+    expect(formatarNumero(paraCaixas(790, 0))).toBe('—');
   });
 });
 
@@ -142,7 +135,7 @@ describe('converterParaBase', () => {
     expect(converterParaBase('0.5', 'caixa', 395)).toBe(197.5);
   });
 
-  it('não converte quando o modo já é unidade de consumo', () => {
+  it('não converte quando o modo já é unidade de consumo, mesmo sem conteúdo', () => {
     expect(converterParaBase('790', 'consumo', 395)).toBe(790);
     expect(converterParaBase('790', 'consumo', 0)).toBe(790);
   });
@@ -152,13 +145,14 @@ describe('converterParaBase', () => {
     expect(converterParaBase('abc', 'caixa', 395)).toBeNull();
   });
 
-  it('devolve null em modo caixa quando o conteúdo é 0, negativo ou NaN', () => {
+  it('devolve null em modo caixa quando o conteúdo é 0, negativo, NaN ou Infinity', () => {
     expect(converterParaBase('2', 'caixa', 0)).toBeNull();
     expect(converterParaBase('2', 'caixa', -395)).toBeNull();
     expect(converterParaBase('2', 'caixa', NaN)).toBeNull();
+    expect(converterParaBase('2', 'caixa', Infinity)).toBeNull();
   });
 
-  it('aceita valores negativos em modo caixa (comportamento atual, sem validação)', () => {
+  it('aceita valores negativos em modo caixa (sem validação de sinal)', () => {
     expect(converterParaBase('-2', 'caixa', 395)).toBe(-790);
   });
 

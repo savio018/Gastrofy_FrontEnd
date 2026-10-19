@@ -73,7 +73,7 @@ export function ReporEstoqueModal({
     const numero = numeroOuNull(lote.valor);
     let valor = lote.valor;
     if (numero !== null && temConteudo) {
-      valor = String(novoModo === 'consumo' ? paraBase(numero, conteudo) : paraCaixas(numero, conteudo));
+      valor = String((novoModo === 'consumo' ? paraBase(numero, conteudo) : paraCaixas(numero, conteudo)) ?? '');
     }
     atualizarLote(idx, { modo: novoModo, valor });
   };
