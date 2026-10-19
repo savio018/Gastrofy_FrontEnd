@@ -6,6 +6,10 @@
     {
       "source": "/redefinir-senha",
       "headers": [{ "key": "Referrer-Policy", "value": "no-referrer" }]
+    },
+    {
+      "source": "/confirmar-email",
+      "headers": [{ "key": "Referrer-Policy", "value": "no-referrer" }]
     }
   ]
 }

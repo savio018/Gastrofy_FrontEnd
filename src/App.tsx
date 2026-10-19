@@ -5,6 +5,7 @@ import { Login } from './pages/auth/Login';
 import { Cadastro } from './pages/auth/Cadastro';
 import { EsqueciSenha } from './pages/auth/EsqueciSenha';
 import { RedefinirSenha } from './pages/auth/RedefinirSenha';
+import { ConfirmarEmail } from './pages/auth/ConfirmarEmail';
 import { Dashboard } from './pages/Dashboard';
 import { Insumos } from './pages/Insumos';
 import { Receitas } from './pages/Receitas';
@@ -22,6 +23,7 @@ function App() {
       <Route path="/cadastro" element={<Cadastro />} />
       <Route path="/esqueci-senha" element={<EsqueciSenha />} />
       <Route path="/redefinir-senha" element={<RedefinirSenha />} />
+      <Route path="/confirmar-email" element={<ConfirmarEmail />} />
 
       <Route
         element={
