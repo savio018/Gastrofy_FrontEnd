@@ -2,6 +2,8 @@ import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { ForkIcon } from '../../components/ForkIcon';
 import { api } from '../../lib/api';
+import { ChecklistSenha } from '../../components/ui/ChecklistSenha';
+import { validarSenha } from '../../utils/senha';
 
 export function Cadastro() {
   const [nome, setNome] = useState('');
@@ -15,14 +17,6 @@ export function Cadastro() {
   const [erroSenha, setErroSenha] = useState('');
   const [erroNome, setErroNome] = useState('');
   const [erroConfirmar, setErroConfirmar] = useState('');
-
-  const validarSenha = (s: string) => {
-    if (s.length < 8) return 'A senha deve ter pelo menos 8 caracteres';
-    if (!/[A-Z]/.test(s)) return 'A senha deve ter pelo menos uma letra maiúscula';
-    if (!/[a-z]/.test(s)) return 'A senha deve ter pelo menos uma letra minúscula';
-    if (!/[0-9]/.test(s)) return 'A senha deve ter pelo menos um número';
-    return '';
-  };
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -202,20 +196,7 @@ export function Cadastro() {
                   {mostrarSenha ? 'Ocultar' : 'Mostrar'}
                 </button>
               </div>
-              {senha && (
-                <ul className="mt-2 space-y-1">
-                  {[
-                    { ok: senha.length >= 8, texto: 'Mínimo 8 caracteres' },
-                    { ok: /[A-Z]/.test(senha), texto: 'Uma letra maiúscula' },
-                    { ok: /[a-z]/.test(senha), texto: 'Uma letra minúscula' },
-                    { ok: /[0-9]/.test(senha), texto: 'Um número' },
-                  ].map((req) => (
-                    <li key={req.texto} className={`text-xs ${req.ok ? 'text-green-600' : 'text-red-500'}`}>
-                      {req.ok ? '✓' : '✗'} {req.texto}
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <ChecklistSenha senha={senha} />
               {erroSenha && <p className="mt-1 text-xs text-red-600">{erroSenha}</p>}
             </div>
 

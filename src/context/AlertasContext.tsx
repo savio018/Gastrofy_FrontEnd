@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from 'react';
 import { listarAlertas } from '../api/alertas';
+import { useAuth } from './AuthContext';
 import type { Alerta } from '../types';
 
 interface AlertasContextValue {
@@ -17,6 +18,7 @@ interface AlertasContextValue {
 const AlertasContext = createContext<AlertasContextValue | undefined>(undefined);
 
 export function AlertasProvider({ children }: { children: ReactNode }) {
+  const { token } = useAuth();
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const [carregando, setCarregando] = useState(true);
 
@@ -31,6 +33,12 @@ export function AlertasProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    if (!token) {
+      setAlertas([]);
+      setCarregando(false);
+      return;
+    }
+
     const carregarAlertas = async () => {
       setCarregando(true);
       try {
@@ -44,7 +52,7 @@ export function AlertasProvider({ children }: { children: ReactNode }) {
     };
 
     carregarAlertas();
-  }, []);
+  }, [token]);
 
   return (
     <AlertasContext.Provider value={{ alertas, carregando, recarregarAlertas }}>

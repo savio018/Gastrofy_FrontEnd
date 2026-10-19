@@ -128,6 +128,15 @@ export function Login() {
               </div>
             </div>
 
+            <div className="-mt-2 text-right">
+              <Link
+                to="/esqueci-senha"
+                className="inline-flex min-h-11 items-center text-sm font-medium text-[#3D1A1A] hover:underline"
+              >
+                Esqueci minha senha
+              </Link>
+            </div>
+
             {erroLogin && (
               <div className="space-y-3">
                 <p className="text-center text-sm text-red-600">{erroLogin}</p>
